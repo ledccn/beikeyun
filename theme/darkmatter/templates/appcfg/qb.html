@@ -1,0 +1,125 @@
+{{ define "appcfg/qb" }}
+{{template "common/header" }}
+
+
+<script>
+    var luciLocation = ["admin","appcfg","qb"];
+</script>
+
+<form id="hacklog-form" method="post" name="cbi" action="/appcfg/other-qb" enctype="multipart/form-data">
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">qBittorrent配置</h2>
+        <div class="cbi-map-descr">在这里，配置您的qBittorrent。
+        </div>
+        <fieldset class="cbi-section" id="cbi-system-system">
+            <legend>qBittorrent</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab">
+                    <a href="/appcfg/qb">常规设置</a>
+                </li>
+                <li id="tab.system.cfg02e48a.log" class="cbi-tab-disabled">
+                    <a href="/appcfg/qb-log">日志</a>
+                </li>
+            </ul>
+
+
+            <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+                <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">运行状态</label>
+                        <div class="cbi-value-field">
+                            <input id="qb-status" class="cbi-button cbi-input-save" type="button" value="qbittorrent-nox Running">
+                            {{ $x := .qbcfg.Preferences.WebUIHTTPSEnabled }}
+                            <a id="web_ui_link" target="_blank" rel="noreferrer" class="cbi-button cbi-input-save quick-open"
+                               href="http{{ EqOutput "true" $x "s" | attr }}://{{ GetHostname | attr }}:{{ SysCfg "app.qb.listen_port" "8083" | attr }}">
+                                http{{ EqOutput "true" $x "s" | attr }}://{{ GetHostname | attr }}:{{ SysCfg "app.qb.listen_port" "8083" | attr }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Monitored Folder -->
+<!--                   <div class="cbi-value">
+                        <label class="cbi-value-title" for="workgroup">Monitored Folder</label>
+                        <div class="cbi-value-field">
+                            <input  id="workgroup" name="Preferences.Downloads\ScanDirsV2" type="text"
+                                    class="cbi-input-text" value="{{ .qbcfg.Preferences.DownloadsScanDirsV2 }}"/>
+                        </div>
+                    </div>-->
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="WebUIUsername">WebUI用户名</label>
+                        <div class="cbi-value-field">
+                            <input readonly id="WebUIUsername" name="Preferences.WebUI\Username" type="text"
+                                    class="cbi-input-text" value="{{ .qbcfg.Preferences.WebUIUsername }}"/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="WebUIPort">WebUI监听端口(文件)</label>
+                        <div class="cbi-value-field">
+                            <input id="WebUIPort" readonly name="Preferences.WebUI\Port" type="text"
+                                   class="cbi-input-text" value="{{ .qbcfg.Preferences.WebUIPort }}"/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="WebUIHTTPSEnabled">WebUI启用https</label>
+                        <div class="cbi-value-field">
+                            <input readonly id="WebUIHTTPSEnabled" name="Preferences.workgroup" type="text"
+                                    class="cbi-input-text" value="{{ .qbcfg.Preferences.WebUIHTTPSEnabled }}"/>
+                            默认 false
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <!-- 0 to 65535 -->
+                        <label class="cbi-value-title" for="listen_port">WebUI监听端口(数据交换)</label>
+                        <div class="cbi-value-field">
+                            <input id="listen_port" name="listen_port" type="text" maxlength="5"
+                                   class="cbi-input-text" value="{{ SysCfg "app.qb.listen_port" "8083" }}"/>
+                            默认 8083
+                        </div>
+                    </div>
+                    
+                </div>
+            </fieldset>
+
+        <br/>
+    </fieldset>
+    </div>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+</form>
+
+<script>
+    jQuery(function($) {
+        $('#listen_port').change(function(){
+            let link = $('#web_ui_link');
+            console.log(link.attr("href"));
+            let href = new URL(link.attr("href"));
+            newlink = href.protocol + "//" + href.hostname + ":" + $(this).val();
+            link.attr("href", newlink);
+            link.text(newlink);
+            //top link
+            let top_link = $('#qb_web_link');
+            top_link.attr("href", newlink);
+        });
+        $('#hacklog-form').submit(function() {
+            $(this).ajaxSubmit({success:function(resp) {
+                    console.log(resp);
+                    msg_type = resp.error !== 0 ? 'error' : 'success';
+                    alertify.notify(resp.message, msg_type, 2, function(){processCheck('qbittorrent-nox', '#qb-status');});
+                }
+            });
+            return false;
+        });
+        processCheck('qbittorrent-nox', '#qb-status');
+    });
+</script>
+{{template "common/footer"}}
+{{ end }}

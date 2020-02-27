@@ -1,0 +1,111 @@
+{{ define "status/traffic" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin","status","traffic"];
+</script>
+
+    <link href="/static/vnstat/css/nox.css" rel="stylesheet" type="text/css" />
+    <!--[if IE]><script language="javascript" type="text/javascript" src="/static/vnstat/js/excanvas.min.js"></script><![endif]-->
+    <script language="javascript" type="text/javascript" src="/static/vnstat/js/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/vnstat/js/jquery.flot.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/vnstat/js/jquery.flot.categories.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/vnstat/js/radio.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/vnstat/js/main.js"></script>
+    <script language="javascript" type="text/javascript">
+        // datasets = {
+        //     "hourstx": {label: "KB TX", color: "#f0f0f0", shadowSize: 5,	data: [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,795],[17,9775],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]]},
+        //     "hoursrx": {label: "KB RX", color: "#92cf00", shadowSize: 5, data: [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,3241],[17,267157],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]]},
+        //     "daystx": {label: "MB TX", color: "#f0f0f0", shadowSize: 5, data: [[0,0],[1,9],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0],[24,0],[25,0],[26,0],[27,0],[28,0],[29,0]]},
+        //     "daysrx": {label: "MB RX", color: "#92cf00", shadowSize: 5, data: [[0,3],[1,260],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0],[24,0],[25,0],[26,0],[27,0],[28,0],[29,0]]},
+        //     "monthstx": {label: "MB TX", color: "#f0f0f0", shadowSize: 5, data: [[0,10],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]]},
+        //     "monthsrx": {label: "MB RX", color: "#92cf00", shadowSize: 5, data: [[0,264],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]]},
+        //     "top10tx": {label: "MB TX", color: "#f0f0f0", shadowSize: 5, data: [[1,9],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]},
+        //     "top10rx": {label: "MB RX", color: "#92cf00", shadowSize: 5, data: [[1,260],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0]]}
+        // };
+        graph_type = "lines";
+        key = "hours";
+    </script>
+
+<div class="cbi-map" id="cbi-system">
+    <h2 name="content">网络流量</h2>
+    <div class="cbi-map-descr">网络流量图表
+</div>
+    <fieldset class="cbi-section" id="cbi-system-system">
+
+<div id="leftcolumn">
+    <p id="choices">
+        <label class="hiddenJS" for="r1">
+            <input class="hiddenJS" type="radio" name="group1" id="r1" value="hours" checked />
+            小时&nbsp;&nbsp;&nbsp;</label><br /><br />
+        <label class="hiddenJS" for="r2">
+            <input class="hiddenJS" type="radio" name="group1" id="r2" value="days" />
+            天&nbsp;&nbsp;&nbsp;&nbsp;</label><br /><br />
+        <label class="hiddenJS" for="r3">
+            <input class="hiddenJS" type="radio" name="group1" id="r3" value="months"  />
+            月&nbsp;&nbsp;</label><br /><br />
+        <label class="hiddenJS" for="r4">
+            <input class="hiddenJS" type="radio" name="group1" id="r4" value="top10"  />
+            Top&nbsp;10&nbsp;&nbsp;</label><br /><br />
+    </p>
+    <p id="types">
+        <label class="hiddenJS" for="g1">
+            <input class="hiddenJS" type="radio" name="group2" id="g1" value="lines" checked />线图</label>
+        <label class="hiddenJS" for="g2">
+            <input class="hiddenJS" type="radio" name="group2" id="g2" value="bars"  />柱图</label>
+    </p>
+    <br />
+    <h3>接口</h3>
+    <select id="interface">
+{{range $ifname,$not_used_val := $.interfaces}}
+        <option value="{{ $ifname }}" {{ EqOutput "eth0" $ifname " selected " | attr }}>{{ $ifname }}</option>
+{{end}}
+    </select>
+    <br />
+    <h3>总流量</h3>
+    <attr id="data-total-tx" title=" MB">TX: 0 GB</attr><br />
+    <attr id="data-total-rx" title=" MB">RX: 0 GB</attr><br />
+    <br />
+    <h3>运行时间</h3>
+    <attr id="since" title="since 07.08.2018, 13:33">0min</attr>
+    <br />
+    <h3>数据库</h3>
+    创建时间: <br /><span id="database-created"></span><br />
+    更新时间: <br /><span id="database-updated"></span><br />
+    <button id="reload" class="label" style="display:  inline-block;margin: 8px 0;padding: 5px 8px;cursor: pointer">→ 重新加载</button>
+</div>
+<div id="content">
+    <div id="placeholder"></div>
+    <br />
+    <div id="tables">
+
+        <div id="hours_table">
+            <table class="graph">
+                <thead><tr><th>时间</th><th>TX发送</th><th>RX接收</th><th>比例</th><th>合计</th></tr></thead><tbody>
+            </tbody>
+            </table>
+        </div>
+        <div id="days_table">
+            <table class="graph">
+                <thead><tr><th>时间</th><th>TX发送</th><th>RX接收</th><th>比例</th><th>合计</th></tr></thead><tbody>
+           </tbody>
+            </table>
+        </div>
+        <div id="months_table">
+            <table class="graph">
+                <thead><tr><th>时间</th><th>TX发送</th><th>RX接收</th><th>比例</th><th>合计</th></tr></thead><tbody>
+            </tbody>
+            </table>
+        </div>
+        <div id="top10_table">
+            <table class="graph">
+                <thead><tr><th>时间</th><th>TX发送</th><th>RX接收</th><th>比例</th><th>合计</th></tr></thead><tbody>
+            </tbody>
+            </table>
+        </div>			</div>
+</div>
+
+    </fieldset>
+
+{{template "common/footer"}}
+{{ end }}

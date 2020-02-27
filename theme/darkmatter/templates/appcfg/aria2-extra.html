@@ -1,0 +1,225 @@
+{{ define "appcfg/aria2-extra" }}
+{{template "common/header" }}
+
+
+<script>
+    var luciLocation = ["admin","appcfg","aria2"];
+</script>
+
+<!-- typeahead style -->
+<link rel="stylesheet" href="/static/css/typeahead.css" />
+<script src="/static/js/typeahead/typeahead.jquery.min.js"></script>
+
+<form id="hacklog-form" method="post" name="cbi" action="/appcfg/aria2" enctype="multipart/form-data">
+    <div>
+        <input type="hidden" name="token" value="270ecd947ed9c903589480de00ff97c4"/>
+        <input type="hidden" name="cbi.submit" value="1"/>
+        <input type="submit" value="Save" class="hidden"/>
+    </div>
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">Aria2配置</h2>
+        <div class="cbi-map-descr">在这里，配置Aria2。
+        </div>
+        <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section" id="cbi-system-system">
+            <legend>Aria2</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab-disabled">
+                    <a href="/appcfg/aria2">常规设置</a>
+                </li>
+                <li id="tab.system.cfg02e48a.extra" class="cbi-tab">
+                    <a href="javascript:void(0);">高级设置</a>
+                </li>
+                <li id="tab.system.cfg02e48a.log" class="cbi-tab-disabled">
+                    <a href="/appcfg/aria2-log">日志</a>
+                </li>
+            </ul>
+        <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+         <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+        <fieldset class="cbi-section">
+            <legend>HTTP配置</legend>
+
+            <fieldset class="cbi-section-node" id="cbi-system-ntp">
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="timeout">UserAgent客户端伪装</label>
+                    <div class="cbi-value-field">
+                        <input style="min-width: 800px;" id="user-agent" name="user-agent" type="text" class="cbi-input-text" value="{{ .aria2cfg.UserAgent }}"/>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="timeout">超时时间</label>
+                    <div class="cbi-value-field">
+                        <input  id="timeout" name="timeout" type="text" class="cbi-input-text" value="{{ .aria2cfg.Timeout }}"/>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="timeout">连接超时时间</label>
+                    <div class="cbi-value-field">
+                        <input  id="connect-timeout" name="connect-timeout" type="text" class="cbi-input-text" value="{{ .aria2cfg.ConnectTimeout }}"/>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="timeout">单任务最大连接数</label>
+                    <div class="cbi-value-field">
+                        <input  id="split" name="split" type="text" class="cbi-input-text" value="{{ .aria2cfg.Split }}"/>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="timeout">最小文件分片大小</label>
+                    <div class="cbi-value-field">
+                        <input  id="min-split-size" name="min-split-size" type="text" class="cbi-input-text" value="{{ .aria2cfg.MinSplitSize }}"/>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="timeout">最大同时下载数</label>
+                    <div class="cbi-value-field">
+                        <input  id="max-concurrent-downloads" name="max-concurrent-downloads" type="text" class="cbi-input-text" value="{{ .aria2cfg.MaxConcurrentDownloads }}"/>
+                        最大值 16
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="timeout">服务器最大连接数</label>
+                    <div class="cbi-value-field">
+                        <input  id="max-connection-per-server" name="max-connection-per-server" type="text" class="cbi-input-text" value="{{ .aria2cfg.MaxConnectionPerServer }}"/>
+                        最大值 16
+                    </div>
+                </div>
+
+            </fieldset>
+        </fieldset>
+
+        <fieldset class="cbi-section">
+            <legend>BT配置</legend>
+
+            <fieldset class="cbi-section-node" id="cbi-system-ntp">
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="dht-listen-port">数据传输监听端口</label>
+                    <div class="cbi-value-field">
+                        <!-- udp dht listen port -->
+                        <input  id="dht-listen-port" name="dht-listen-port" type="text"
+                                class="cbi-input-text" value="{{ .aria2cfg.DhtListenPort }}" />
+                        默认 16888
+                        <!-- tcp dht listen port -->
+                        <input type="hidden" id="listen-port" name="listen-port" value="{{ .aria2cfg.ListenPort }}">
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="enable-dht">打开DHT</label>
+                    <div class="cbi-value-field">
+                        <input  id="enable-dht" name="enable-dht" type="text" class="cbi-input-text" value="{{ .aria2cfg.EnableDht }}"/>
+						PT需要禁用
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="bt-enable-lpd">启用本地节点发现(LPD)</label>
+                    <div class="cbi-value-field">
+                        <input  id="bt-enable-lpd" name="bt-enable-lpd" type="text" class="cbi-input-text" value="{{ .aria2cfg.BtEnableLpd }}"/>
+						PT需要禁用
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="enable-peer-exchange">启用节点交换</label>
+                    <div class="cbi-value-field">
+                        <input  id="enable-peer-exchange" name="enable-peer-exchange" type="text" class="cbi-input-text" value="{{ .aria2cfg.EnablePeerExchange }}"/>
+						PT需要禁用
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="bt-max-peers">最大连接节点数</label>
+                    <div class="cbi-value-field">
+                        <input  id="bt-max-peers" name="bt-max-peers" type="text" class="cbi-input-text" value="{{ .aria2cfg.BtMaxPeers }}"/>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="bt-request-peer-speed-limit">每个种子限速</label>
+                    <div class="cbi-value-field">
+                        <input  id="bt-request-peer-speed-limit" name="bt-request-peer-speed-limit" type="text" class="cbi-input-text" value="{{ .aria2cfg.BtRequestPeerSpeedLimit }}"/>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="bt-stop-timeout">无速度时自动停止时间</label>
+                    <div class="cbi-value-field">
+                        <input  id="bt-stop-timeout" name="bt-stop-timeout" type="text" class="cbi-input-text" value="{{ .aria2cfg.BtStopTimeout }}"/>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="seed-ratio">最小分享率</label>
+                    <div class="cbi-value-field">
+                        <input  id="seed-ratio" name="seed-ratio" type="text" class="cbi-input-text" value="{{ .aria2cfg.SeedRatio }}"/>
+						当种子的分享率达到这个数时, 自动停止做种, 0为一直做种
+                    </div>
+                </div>
+                <!--
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="seed-time">seed-time</label>
+                    <div class="cbi-value-field">
+                        <input  id="seed-time" name="seed-time" type="text" class="cbi-input-text" value="{{ .aria2cfg.SeedTime }}"/>
+                    </div>
+                </div>
+                -->
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="max-upload-limit">单种最大上传速度</label>
+                    <div class="cbi-value-field">
+                        <input  id="max-upload-limit" name="max-upload-limit" type="text" class="cbi-input-text" value="{{ .aria2cfg.MaxUploadLimit }}"/>
+                    </div>
+                </div>
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="max-overall-upload-limit">全局最大上传速度</label>
+                    <div class="cbi-value-field">
+                        <input  id="max-overall-upload-limit" name="max-overall-upload-limit" type="text" class="cbi-input-text" value="{{ .aria2cfg.MaxOverallUploadLimit }}"/>
+                    </div>
+                </div>
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="bt-tracker">BT-Tracker</label>
+                    <div class="cbi-value-field">
+                        <textarea spellcheck="false" name="bt-tracker" id="bt-tracker" cols="80" rows="10">{{ .aria2cfg.BtTracker }}</textarea>
+                    </div>
+                </div>
+
+
+            </fieldset>
+            <br/>
+
+        </fieldset>
+
+        <br/>
+    </div>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+</form>
+
+<script>
+    jQuery(function($) {
+        $('#hacklog-form').submit(function() {
+            $(this).ajaxSubmit({success:function(resp) {
+                    console.log(resp);
+                    msg_type = resp.error !== 0 ? 'error' : 'success';
+                    alertify.notify(resp.message, msg_type, 2, function(){});
+                }
+            });
+            return false;
+        });
+    });
+</script>
+
+{{template "common/footer"}}
+{{ end }}

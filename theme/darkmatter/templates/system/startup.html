@@ -1,0 +1,202 @@
+{{ define "system/startup" }}
+{{template "common/header" }}
+
+
+<script>
+    var luciLocation = ["admin", "system", "startup"];
+</script>
+
+<link rel="stylesheet" href="/static/js/codemirror/lib/codemirror.css">
+<link rel="stylesheet" href="/static/js/codemirror/theme/ambiance.css">
+<script src="/static/js/codemirror/lib/codemirror.js"></script>
+<script src="/static/js/codemirror/mode/shell/shell.js"></script>
+<script src="/static/js/codemirror/addon/selection/active-line.js"></script>
+<script src="/static/js/codemirror/addon/edit/matchbrackets.js"></script>
+<script src="/static/js/codemirror/addon/edit/closebrackets.js"></script>
+<style type="text/css">
+    .CodeMirror {border: 1px solid black; font-size:13px}
+</style>
+
+<form method="post" enctype="multipart/form-data" action="/admin/system/startup">
+    <div>
+        <input type="hidden" name="token" value="2f86defcf1ad6da91dba55a45c3920e7"/>
+        <input type="hidden" name="cbi.submit" value="1"/>
+    </div>
+
+    <div class="cbi-map" id="cbi-initmgr">
+        <h2 name="content">初始化脚本</h2>
+        <div class="cbi-map-descr">您可以启用或禁止已安装的init脚本，设备重启后将应用更改。<br/><strong>警告：如果禁用"S99dashboard"，WEB UI管理页面将无法访问！</strong></div>
+        <!-- tblsection -->
+        <fieldset class="cbi-section" id="cbi-table-table" style="max-width: 60%;">
+            <div class="cbi-section-descr"></div>
+            <div class="cbi-section-node">
+                <table class="cbi-section-table">
+                    <tr class="cbi-section-table-titles">
+                        <th class="cbi-section-table-cell">启动优先级</th>
+                        <th class="cbi-section-table-cell">脚本路径</th>
+                        <th class="cbi-section-table-cell">是否开机启动</th>
+                        <th class="cbi-section-table-cell">启动</th>
+                        <th class="cbi-section-table-cell">重启</th>
+                        <th class="cbi-section-table-cell">停止</th>
+                    </tr>
+                    <tr class="cbi-section-table-descr">
+                        <th class="cbi-section-table-cell"></th>
+                        <th class="cbi-section-table-cell"></th>
+                        <th class="cbi-section-table-cell"></th>
+                        <th class="cbi-section-table-cell"></th>
+                        <th class="cbi-section-table-cell"></th>
+                        <th class="cbi-section-table-cell"></th>
+                    </tr>
+
+                    {{ range $k,$service := $.SysvInitList }}
+                    <tr class="cbi-section-table-row cbi-rowstyle-1">
+                        <td class="cbi-value-field">
+                            {{ $service.Priority }}
+                        </td>
+
+
+                        <td class="cbi-value-field">
+                                /etc/init.d/{{ $service.InitName }}
+                                <input type="hidden" id="name" value="sysfixtime"/>
+                        </td>
+
+
+                        <td class="cbi-value-field">
+                                <input class="cbi-button cbi-input-save service-ctrl" data-init="{{ $service.InitName }}" data-system="{{ $service.IsSystem }}" type="button"
+                                       name="enabled" value="{{ $service.Enabled }}"/>
+                        </td>
+
+
+                        <td class="cbi-value-field">
+                                <input data-init="{{ $service.InitName }}" class="cbi-button cbi-input-apply user-action" type="button"
+                                       name="start" value="Start"/>
+
+                        </td>
+
+                        <td class="cbi-value-field">
+                                <input data-init="{{ $service.InitName }}" class="cbi-button cbi-input-reload user-action" type="button"
+                                       name="restart" value="Restart"/>
+                        </td>
+
+
+                        <td class="cbi-value-field">
+                                <input data-init="{{ $service.InitName }}" class="cbi-button cbi-input-remove user-action" type="button"
+                                       name="stop" value="Stop"/>
+                        </td>
+                    </tr>
+                    {{end}}
+
+                </table>
+
+            </div>
+        </fieldset>
+        <!-- /tblsection -->
+        <br/>
+    </div>
+
+</form>
+
+
+<form id="hacklog-form" method="post" enctype="multipart/form-data" action="/admin/system/startup/rc-local">
+    <div class="cbi-map" id="cbi-rc">
+        <h2 name="content">新增启动项</h2>
+        <div class="cbi-map-descr">编辑/etc/rc.local，插入你自己的命令（必须'exit 0'在前插入）在开机成功后将会执行它们。
+        </div>
+        <fieldset class="cbi-section">
+
+            <div class="cbi-section-node">
+                <div id="cbi-rc-0xab3d50">
+                    <div class="cbi-value cbi-value-last" id="cbi-rc-1-rcs">
+	<textarea id="rc-local-ta" class="cbi-input-textarea" style="width: 100%" name="rc.local" rows="20">{{ .RcLocalContent }}</textarea>
+                    </div>
+
+
+                </div>
+
+            </div>
+            <br/>
+        </fieldset>
+        <br/>
+    </div>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+</form>
+
+<script>
+    jQuery(function($) {
+        $("input[name=enabled][value=no]").removeClass("cbi-input-save").addClass("cbi-input-apply");
+        $("input[name=enabled][data-system=yes]").removeClass("cbi-input-save").removeClass("cbi-input-apply").attr("disabled", true);
+        $("input[name=stop][data-init=S99dashboard]").attr("disabled", true);
+
+        $('.service-ctrl').click(function(){
+            var initscript = $(this).attr('data-init');
+            var system = $(this).attr('data-system');
+            var curStat = $(this).val().toLowerCase();
+            if (system === "yes") {
+                return false;
+            }
+            let that = this;
+            let action = curStat === "yes" ? "disable" : "enable";
+			let act = curStat === "yes" ? "禁止" : "启用";
+            $.post("/admin/system/startup",{"initscript": initscript, "action": action}, function (resp) {
+                if (resp.error == 0) {
+                    if (curStat === "yes") {
+                        $(that).val("no");
+                    } else {
+                        $(that).val("yes");
+                    }
+                    $("input[name=enabled][value=no]").removeClass("cbi-input-save").addClass("cbi-input-apply");
+                    $("input[name=enabled][value=yes]").addClass("cbi-input-save").removeClass("cbi-input-apply");
+                    alertify.alert("服务 "+ act, '操作成功!');
+                } else {
+                    alertify.alert("服务 "+ act, '操作失败!');
+                }
+                //location.reload();
+            });
+            return false;
+        });
+
+        $('.user-action').click(function (e) {
+            var initscript = $(this).attr('data-init');
+            var action = $(this).val().toLowerCase();
+            if (action == 'stop' && !confirm("确定操作?")) {
+                return false;
+            }
+            $.post("/admin/system/startup",{"initscript": initscript, "action": action}, function (resp) {
+                if (resp.error == 0) {
+                    alertify.alert("服务 "+ action, '操作成功!');
+                } else {
+                    alertify.alert("服务 "+ action, '操作失败!');
+                }
+                //location.reload();
+            });
+            return false;
+        });
+
+        var editor = CodeMirror.fromTextArea(document.getElementById("rc-local-ta"), {
+            mode:  "shell",
+            lineSeparator: "\n", //this seems not work ... bug?
+            lineNumbers: true,
+            styleActiveLine: true,
+            matchBrackets: true,
+            closeBrackets: true
+        });
+        editor.setOption("theme", 'ambiance');
+
+        $('#hacklog-form').submit(function() {
+            editor.save();
+            $(this).ajaxSubmit({success:function(resp) {
+                    console.log(resp);
+                    msg_type = resp.error !== 0 ? 'error' : 'success';
+                    alertify.notify(resp.message, msg_type, 2, function(){});
+                }
+            });
+            return false;
+        });
+
+    })
+</script>
+{{template "common/footer"}}
+{{ end }}

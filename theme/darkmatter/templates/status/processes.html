@@ -1,0 +1,104 @@
+{{ define "status/processes" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin","status","processes"];
+</script>
+
+<div class="cbi-map" id="cbi-processes">
+    <h2 name="content">进程</h2>
+    <div class="cbi-map-descr">此列表包含当前正在运行的系统进程及状态。</div>
+    <!-- tblsection -->
+    <fieldset class="cbi-section" id="cbi-table-table">
+        <div class="cbi-section-descr"></div>
+        <div class="cbi-section-node"><table class="cbi-section-table">
+            <tr class="cbi-section-table-titles">
+                <th class="cbi-section-table-cell">PID</th>
+                <th class="cbi-section-table-cell">所有者</th>
+                <th class="cbi-section-table-cell">命令</th>
+                <th class="cbi-section-table-cell">CPU使用率(%)</th>
+                <th class="cbi-section-table-cell">内存使用率(%)</th>
+                <!--<th class="cbi-section-table-cell">Hang Up</th>
+                <th class="cbi-section-table-cell">Terminate</th>
+                <th class="cbi-section-table-cell">Kill</th>-->
+            </tr>
+            <tr class="cbi-section-table-descr">
+                <th class="cbi-section-table-cell"></th>
+                <th class="cbi-section-table-cell"></th>
+                <th class="cbi-section-table-cell"></th>
+                <th class="cbi-section-table-cell"></th>
+                <th class="cbi-section-table-cell"></th>
+                <!--<th class="cbi-section-table-cell"></th>
+                <th class="cbi-section-table-cell"></th>
+                <th class="cbi-section-table-cell"></th>-->
+            </tr>
+
+{{range $proc := $.processes}}
+            <tr class="cbi-section-table-row cbi-rowstyle-{{ $proc.Pid }}" id="cbi-table-{{ $proc.Pid }}">
+            <td class="cbi-value-field">
+                <div class="cbi-table-PID" data-index="" data-depends="[]">
+                {{ $proc.Pid }}
+                </div>
+            </td>
+
+            <td class="cbi-value-field">
+                <div class="cbi-table-USER" data-index="" data-depends="[]">
+                {{ $proc.Username }}
+                </div>
+            </td>
+
+
+            <td class="cbi-value-field">
+                <div class="cbi-table-COMMAND" data-index="" data-depends="[]" style="text-align: left;max-width: 1200px; overflow: hidden;text-overflow: ellipsis;">
+                {{ $proc.Cmdline }}
+                </div>
+            </td>
+
+
+            <td class="cbi-value-field">
+                <div class="cbi-table-%CPU" data-index="" data-depends="[]">
+                {{ $proc.CpuPercent | printf "%.2f" }}%
+                </div>
+            </td>
+
+
+            <td class="cbi-value-field">
+                <div class="cbi-table-%MEM" data-index="" data-depends="[]">
+                {{ $proc.MemPercent  | printf "%.2f" }}%
+                </div>
+            </td>
+
+        <!--
+            <td class="cbi-value-field">
+                <div data-index="" data-depends="[]">
+                    <input class="cbi-button cbi-input-reload" type="submit" name="cbid.table.1._hup" class="cbid.table._hup" value="Hang Up" />
+                </div>
+            </td>
+
+
+            <td class="cbi-value-field">
+                <div data-index="" data-depends="[]">
+                    <input class="cbi-button cbi-input-remove" type="submit" name="cbid.table.1._term" class="cbid.table._term" value="Terminate" />
+                </div>
+            </td>
+
+
+            <td class="cbi-value-field">
+                <div data-index="" data-depends="[]">
+                    <input class="cbi-button cbi-input-reset" type="submit" name="cbid.table.1._kill" class="cbid.table._kill" value="Kill" />
+                </div>
+            </td>
+        -->
+        </tr>
+{{end}}
+
+</table>
+
+        </div>
+    </fieldset>
+    <!-- /tblsection -->
+    <br />
+</div>
+
+{{template "common/footer"}}
+{{ end }}

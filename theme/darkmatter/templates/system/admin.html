@@ -1,0 +1,187 @@
+{{ define "system/admin" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin", "system", "admin"];
+</script>
+
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">Root密码</h2>
+        <div class="cbi-map-descr">更改root管理员密码，用于NDM小钢炮管理面板、ssh登录。建议设置高强度密码，提升系统安全性。</div>
+        <fieldset class="cbi-section" id="cbi-system-_dummy">
+
+
+            <fieldset class="cbi-section-node" id="cbi-system-_pass">
+
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="cbid.system._pass.pw1">新密码</label>
+                    <div class="cbi-value-field">
+
+                        <input  id="cbid.system._pass.pw1" name="passwd" type="password" class="cbi-input-password" value=""/>
+                        <img src="/static/img/eye.png" style="vertical-align:middle"
+                             title="Reveal/hide password"
+                             onclick="var e = document.getElementById('cbid.system._pass.pw1'); e.type = (e.type=='password') ? 'text' : 'password';"/>
+                    </div>
+                </div>
+
+                <div class="cbi-value cbi-value-last" id="cbi-system-_pass-pw2">
+					<label class="cbi-value-title" for="cbid.system._pass.pw2">确认密码</label>
+                    <div class="cbi-value-field">
+                        <input  id="cbid.system._pass.pw2" name="passwd_confirm"
+                               type="password" class="cbi-input-password" value=""/>
+                        <img src="/static/img/eye.png" style="vertical-align:middle"
+                             title="Reveal/hide password"
+                             onclick="var e = document.getElementById('cbid.system._pass.pw2'); e.type = (e.type=='password') ? 'text' : 'password';"/>
+                        <input type="submit" class="cbi-button cbi-button-save passwd-action" name="pwd-update" value="更改"/>
+                    </div>
+
+                </div>
+
+
+            </fieldset>
+            <br/>
+
+        </fieldset>
+
+
+        <br/>
+    </div>
+
+<form method="post" name="cbi" action="/admin/system/admin" enctype="multipart/form-data">
+    <div class="cbi-map" id="cbi-dropbear">
+        <h2 name="content">SSH 访问</h2>
+        <div class="cbi-map-descr">Dropbear进程提供 <abbr title="Secure Shell">SSH</abbr>网络shell访问和<abbr title="Secure Copy">SCP</abbr>服务。
+        </div>
+        <fieldset class="cbi-section" id="cbi-dropbear-dropbear">
+            <legend>Dropbear配置</legend>
+
+            <fieldset class="cbi-section-node" id="dropbear-">
+
+
+                <div class="cbi-value" id="dropbear-Port">
+					<label class="cbi-value-title" for="listen_port">端口</label>
+                    <div class="cbi-value-field">
+
+                        <input readonly  id="listen_port" name="listen_port" type="text"
+                               class="cbi-input-text" value="{{ .dropbear.ListenPort }}" data-type="port" data-optional="true"/>
+                        <br/>
+                        <div class="cbi-value-description">
+                            <span class="cbi-value-helpicon"><img src="/static/resources/cbi/help.gif" alt="help"/></span>
+                            指定<em>Dropbear</em>监听端口。
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="upnp_enable">启用UPnP端口映射</label>
+                    <div class="cbi-value-field">
+                        <select class="cbi-input-select"  id="upnp_enable" name="upnp_enable" size="1">
+                            <option {{ EqOutput false .dropbear.UpnpEnable " selected " | attr }} value="false">关闭</option>
+                            <option {{ EqOutput true .dropbear.UpnpEnable " selected " | attr }} value="true">开启</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="upnp_port">UPnP端口</label>
+                    <div class="cbi-value-field">
+                        <input id="upnp_port" name="upnp_port" type="text"
+                               class="cbi-input-text" value="{{ .dropbear.UpnpPort }}" data-type="port"/>
+                        <br/>
+                        <div class="cbi-value-description">
+                            <span class="cbi-value-helpicon"><img src="/static/resources/cbi/help.gif" alt="help"/></span>
+                            指定UPnP外部端口
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+            <br/>
+
+        </fieldset><!-- tblsection -->
+        <fieldset class="cbi-section" id="cbi-dropbear-_dummy">
+            <legend>SSH-Keys</legend>
+            <div class="cbi-section-descr">
+                此处可以粘贴公共SSH密钥（每行一个）以进行SSH公钥验证。用于复制当前用户公钥的可用命令：
+                <pre>
+#linux
+xclip -sel clip < ~/.ssh/id_rsa.pub
+
+# in case you get a display null error
+DISPLAY=:0 xclip -sel clip < ~/.ssh/id_rsa.pub
+
+# osx
+pbcopy < ~/.ssh/id_rsa.pub
+                </pre>
+            </div>
+            <div class="cbi-section-node">
+                <table class="cbi-section-table">
+                    <tr class="cbi-section-table-titles">
+                        <th class="cbi-section-table-cell"></th>
+                    </tr>
+                    <tr class="cbi-section-table-descr">
+                        <th class="cbi-section-table-cell"></th>
+                    </tr>
+                    <tr class="cbi-section-table-row" id="cbi-dropbear-_keys">
+                        <td class="cbi-value-field">
+                            <div id="cbi-dropbear-_keys-_data">
+                                <textarea spellcheck="false" class="cbi-input-textarea" style="width: 100%" 
+                                          name="authorized_keys" id="authorized_keys" rows="3"
+                                          wrap="off">{{ .authorized_keys }}</textarea>
+                            </div>
+                        </td>
+
+                    </tr>
+                </table>
+
+            </div>
+        </fieldset>
+        <!-- /tblsection -->
+
+
+        <br/>
+    </div>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save dropbear-action" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+</form>
+
+
+<script>
+    jQuery(function($) {
+        $('.passwd-action').click(function (e) {
+            var passwd = $('input[name="passwd"]').val();
+            var passwd_confirm = $('input[name="passwd_confirm"]').val();
+            if (passwd.length == 0) {
+                alertify.alert('更改密码', "密码无效，不能为空！");
+                return false;
+            }
+            if (passwd != passwd_confirm) {
+                alertify.alert('更改密码', "两次输入的密码不一致！");
+                return false;
+            }
+            $.post("/admin/system/admin",{"passwd": passwd, "passwd_confirm":passwd_confirm, "action": "passwd"}, function (resp) {
+                msg_type = resp.error !== 0 ? 'error' : 'success';
+                alertify.notify(resp.message, msg_type, 6, function(){});
+            });
+            return false;
+        });
+        $('.dropbear-action').click(function (e) {
+            let upnp_enable = $('#upnp_enable').val();
+            let upnp_port = $('#upnp_port').val();
+            let authorized_keys = $('textarea[name="authorized_keys"]').val();
+            let data = {"upnp_enable":upnp_enable, "upnp_port":upnp_port, "authorized_keys": authorized_keys, "action": "dropbear"};
+            $.post("/admin/system/admin", data, function (resp) {
+                msg_type = resp.error !== 0 ? 'error' : 'success';
+                alertify.notify(resp.message, msg_type, 6, function(){});
+            });
+            return false;
+        });
+    })
+</script>
+{{template "common/footer"}}
+{{ end }}
+

@@ -1,0 +1,42 @@
+{{ define "appcfg/smb-log" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin","appcfg","smb"];
+</script>
+
+<div class="cbi-map" id="cbi-system">
+    <h2 name="content">Samba配置</h2>
+    <div class="cbi-map-descr">在这里，您可以查看Samba运行日志
+    </div>
+    <fieldset class="cbi-section" id="cbi-system-system">
+        <legend>Samba</legend>
+
+        <ul class="cbi-tabmenu">
+            <li id="tab.system.cfg02e48a.general" class="cbi-tab-disabled">
+                <a href="/appcfg/smb">全局设置</a>
+            </li>
+            <li id="tab.system.cfg02e48a.users" class="cbi-tab-disabled">
+                <a href="/appcfg/smb-share">共享目录</a>
+            </li>
+            <li id="tab.system.cfg02e48a.users" class="cbi-tab-disabled">
+                <a href="/appcfg/smb-users">用户</a>
+            </li>
+            <li id="tab.system.cfg02e48a.log" class="cbi-tab">
+                <a href="/appcfg/smb-log">日志</a>
+            </li>
+        </ul>
+
+
+        <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+        <div id="content_syslog">
+        <textarea data-autoresize style="font-size: 12px;box-sizing: border-box;resize: none;" readonly="readonly" wrap="off" id="syslog">{{ .SMBLog }}</textarea>
+        </div>
+
+        </fieldset>
+    </fieldset>
+</div>
+
+{{template "common/footer"}}
+{{ end }}

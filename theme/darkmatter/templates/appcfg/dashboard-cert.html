@@ -1,0 +1,129 @@
+{{ define "appcfg/dashboard-cert" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin","appcfg","dashboard"];
+</script>
+
+<form id="dashboard-form" method="post" name="cbi" action="/appcfg/dashboard-cert" enctype="multipart/form-data">
+    <div>
+        <input type="hidden" name="token" value="270ecd947ed9c903589480de00ff97c4"/>
+        <input type="hidden" name="cbi.submit" value="1"/>
+        <input type="submit" value="Save" class="hidden"/>
+    </div>
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">Dashboard配置</h2>
+        <div class="cbi-map-descr">在这里您可以配置SSL证书。
+        </div>
+        <fieldset class="cbi-section" id="cbi-system-system" style="width: 1080px;">
+            <legend>WEB参数</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab-disabled">
+                    <a href="/appcfg/dashboard">常规设置</a>
+                    <input type="hidden" id="tab.system.cfg02e48a" name="tab.system.cfg02e48a" value="general"/>
+                </li>
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab">
+                    <a href="/appcfg/dashboard-cert">SSL证书设置</a>
+                    <input type="hidden" id="tab.system.ssl" name="tab.system.ssl" value="ssl"/>
+                </li>
+                <li id="tab.system.cfg02e48a.log" class="cbi-tab-disabled">
+                    <a href="/appcfg/dashboard-log">日志</a>
+                </li>
+            </ul>
+
+            <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+                <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="sys.dashboard.">SSL key文件</label>
+                        <div class="cbi-value-field">
+                            <input type="file" name="ssl.key" class="cbi-input-text" value=""/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="sys.dashboard.">SSL crt或pem文件</label>
+                        <div class="cbi-value-field">
+                            <input type="file" name="ssl.crt" class="cbi-input-text" value=""/>
+                        </div>
+                    </div>
+                    <div class="cbi-page-actions">
+                        <input class="cbi-button cbi-button-save" type="submit" value="上传">
+                        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+                    </div>
+                </div>
+
+            </fieldset>
+
+            <div class="cbi-map" id="cbi-rc" style="width:480px; float: left;">
+                <h4 name="aaa">SSL Key</h4>
+                <div class="cbi-map-descr">这是ssl.key的内容</div>
+                <fieldset class="cbi-section">
+
+                    <div class="cbi-section-node">
+                        <div id="cbi-rc-0xab3d50">
+                            <div class="cbi-value cbi-value-last">
+	<textarea class="cbi-input-textarea" style="width: 100%" readonly name="" rows="32">{{ .sslKey }}</textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                    <br/>
+
+                </fieldset>
+                <br/>
+            </div>
+
+            <div class="cbi-map" id="cbi-rc" style="width:480px; float:left;">
+                <h4 name="aaa">SSL Cert</h4>
+                <div class="cbi-map-descr">这是ssl.crt的内容</div>
+                <fieldset class="cbi-section">
+
+                    <div class="cbi-section-node">
+                        <div id="cbi-rc-0xab3d50">
+                            <div class="cbi-value cbi-value-last">
+                                <textarea class="cbi-input-textarea" style="width: 100%" readonly name="" rows="32">{{ .sslCrt }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                </fieldset>
+            </div>
+
+        </fieldset>
+
+        <br/>
+    </div>
+    <!--
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="Save"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="Reset"/>
+    </div>
+    -->
+</form>
+
+<script>
+    // wait for the DOM to be loaded
+    $(function() {
+        var options = {
+            success:       showResponse, // post-submit callback
+            error:  checkSysRestartStatus,
+            dataType:  'json',        // 'xml', 'script', or 'json' (expected server response type)
+            timeout:   3000
+        };
+        $('#dashboard-form').submit(function() {
+            $(this).ajaxSubmit(options);
+            return false;
+        });
+        function showResponse(resp, statusText, xhr, $form)  {
+            console.log(resp,statusText, xhr);
+            msg_type = resp.error !== 0 ? 'error' : 'success';
+            alertify.notify(resp.message, msg_type, 6, function(){});
+        }
+    });
+</script>
+
+{{template "common/footer"}}
+{{ end }}

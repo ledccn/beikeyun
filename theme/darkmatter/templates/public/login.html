@@ -1,0 +1,195 @@
+{{ define "public/login" }}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>登录 - HacklogDashboard</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <meta name="format-detection" content="telephone=no, email=no"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="full-screen" content="yes">
+    <meta name="x5-page-mode" content="app">
+    <meta name="browsermode" content="application">
+    <meta name="theme-color" content="#0099CC">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="msapplication-TileColor" content="#0099CC">
+    <meta name="msapplication-TileImage" content="/static/img/logo.png"/>
+    <link rel="stylesheet" href="/static/css/style.css?v=git-17.010.73729-fd88e48">
+    <link rel="shortcut icon" href="/static/img/favicon.ico">
+    <link rel="stylesheet" href="/static/js/alertifyjs/css/alertify.min.css" />
+    <link rel="stylesheet" href="/static/js/alertifyjs/css/themes/default.min.css" />
+
+    <script src="/static/js/alertifyjs/alertify.min.js"></script>
+    <script>
+        alertify.set('notifier','position', 'top-center');
+    </script>
+
+    <style>
+        .background {
+            position: absolute;
+            right: 0px;
+            top: 0px;
+            bottom: 0px;
+            left: 0px;
+            background-size: cover;
+            background-position: center;
+            filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod='scale')";
+        }
+
+        .main {
+            color:#CCCCCC;
+        }
+
+        .container {
+            position: relative;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 6px 32px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 12px;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .btn-primary {
+            color: #fafafa !important;
+            text-shadow: 0 1px 1px rgba(65, 65, 65, 0.4) !important;
+            box-shadow: inset 0 0 24px 0 #606f11, 0 0 3px 0 #9db134 !important;
+            border: 1px solid rgb(121, 144, 55) !important;
+            background: #7eaa0f !important;
+            background: -webkit-radial-gradient(center, ellipse cover, #7eaa0f 0%, #6d8006 100%) !important;
+            background: -webkit-radial-gradient(center ellipse, #7eaa0f 0%, #6d8006 100%) !important;
+            background: radial-gradient(ellipse at center, #7eaa0f 0%, #6d8006 100%) !important;
+        }
+
+        input {
+            /*text-shadow:none;*/
+            background-color: #a7a3a3a3;
+            box-shadow: inset 0 0 1px #000;
+        }
+    </style>
+</head>
+
+<body class="lang_en ">
+
+<div class="background" style="background-image:url(/api/wallpaper)"></div>
+
+<div class="main" style="text-align: center">
+    <div class="container">
+        <form id="login-form" method="post" action="/public/login"><div class="cbi-map">
+
+            <h2 name="content" style="text-align: center">Nano Disk Manager</h2>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title">用户名</label>
+                    <div class="cbi-value-field">
+                        <input class="cbi-input-user" type="text" name="username" value="root" autocomplete="current-user"/>
+                    </div>
+                </div>
+                <div class="cbi-value cbi-value-last">
+                    <label class="cbi-value-title">密码</label>
+                    <div class="cbi-value-field">
+                        <input class="cbi-input-password" type="password" name="password" autocomplete="current-password"/>
+                    </div>
+                </div>
+
+            <div style="text-align: center; margin-top: 35px;margin-bottom: 0px;">
+                <input type="submit" value="登录" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+
+    <footer class="mobile-hide">
+    </footer>
+
+    <script>
+        // thanks for Jo-Philipp Wich <jow@openwrt.org>
+        var luciLocation = [];
+    </script>
+    <script src="/static/js/jquery.min.js?v=3.3.1"></script>
+    <script src="/static/js/jquery.form.min.js"></script>
+    <script src="/static/js/script.js?v=git-17.010.73729-fd88e48"></script>
+
+    <script>
+        var checkLoginStatus = function () {
+            $.get("/api/login-status", function (r) {
+                console.log(r);
+                if (r.error == 0) {
+                    location.href = r.url;
+                } else {
+                    setTimeout('checkLoginStatus()', 1000);
+                }
+            });
+        };
+        // wait for the DOM to be loaded
+        $(function() {
+            setTimeout('checkLoginStatus()', 300);
+
+            var options = {
+                target:        '#message',   // target element(s) to be updated with server response
+                // beforeSubmit:  showRequest,  // pre-submit callback
+                success:       showResponse, // post-submit callback
+
+                // other available options:
+                //url:       url         // override for form's 'action' attribute
+                //type:      type        // 'get' or 'post', override for form's 'method' attribute
+                dataType:  'json',        // 'xml', 'script', or 'json' (expected server response type)
+                //clearForm: true        // clear all form fields after successful submit
+                //resetForm: true        // reset the form after successful submit
+
+                // $.ajax options can be used here too, for example:
+                //timeout:   3000
+            };
+// bind to the form's submit event
+            $('#login-form').submit(function() {
+                // inside event callbacks 'this' is the DOM element so we first
+                // wrap it in a jQuery object and then invoke ajaxSubmit
+                $(this).ajaxSubmit(options);
+
+                // !!! Important !!!
+                // always return false to prevent standard browser submit and page navigation
+                return false;
+            });
+// post-submit callback
+            function showResponse(data, statusText, xhr, $form)  {
+                // for normal html responses, the first argument to the success callback
+                // is the XMLHttpRequest object's responseText property
+
+                // if the ajaxSubmit method was passed an Options Object with the dataType
+                // property set to 'xml' then the first argument to the success callback
+                // is the XMLHttpRequest object's responseXML property
+
+                // if the ajaxSubmit method was passed an Options Object with the dataType
+                // property set to 'json' then the first argument to the success callback
+                // is the json data object returned by the server
+                console.log(data,statusText, xhr);
+                msg_type = data.error !== 0 ? 'error' : 'success';
+                alertify.notify(data.message, msg_type, 3, function(){});
+                if (data.error == 0) {
+                    location.href = data.url;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
+{{ end }}

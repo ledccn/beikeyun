@@ -1,0 +1,240 @@
+{{ define "appcfg/frp-proxies" }}
+{{template "common/header" }}
+
+<!-- jquery.dataTables style -->
+<link rel="stylesheet" href="/static/js/datatables/datatables.css" />
+<script src="/static/js/datatables/datatables.min.js"></script>
+
+
+<script>
+    var luciLocation = ["admin","appcfg","frp"];
+</script>
+
+<form id="proxies-form" method="post" name="cbi" action="/appcfg/frp-proxies" enctype="multipart/form-data">
+    <div>
+        <input type="hidden" name="token" value="270ecd947ed9c903589480de00ff97c4"/>
+        <input type="hidden" name="cbi.submit" value="1"/>
+        <input type="submit" value="Save" class="hidden"/>
+    </div>
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">FRP</h2>
+        <div class="cbi-map-descr">在这里您可以配置frpc客户端。</div>
+        <fieldset class="cbi-section" id="cbi-system-system">
+            <legend>代理设置</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab-disabled">
+                    <a onclick="this.blur(); return cbi_t_switch('system.cfg02e48a', 'general')"
+                       href="/appcfg/frp">常规设置</a>
+                </li>
+                <li id="tab.system.cfg02e48a.log" class="cbi-tab">
+                    <a href="/appcfg/frp-proxies">代理设置</a>
+                </li>
+                <li id="tab.system.cfg02e48a.log" class="cbi-tab-disabled">
+                    <a href="/appcfg/frp-log">运行日志</a>
+                </li>
+            </ul>
+            <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+                <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+                    <table id="proxies-table" class="display cell-border" style="width:100%;">
+                        <thead>
+                        <!-- <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>LocalIP</th>
+                            <th>LocalPort</th>
+                            <th>UseEncryption</th>
+                            <th>UseCompression</th>
+                            <th>RemotePort</th>
+                            <th>Subdomain</th>
+                            <th>Action</th>
+                        </tr> -->
+                        <tr id="edit-row" style="width: 100%;">
+                            <td><input style="width: 8em;" type="text" name="name" id="name" size="18"/></td>
+                            <td>
+                                <select name="type" id="type">
+                                    <option value="http">http</option>
+                                    <option value="https">https</option>
+                                    <option value="tcp">tcp</option>
+                                    <option value="udp">udp</option>
+                                </select>
+                            </td>
+                            <td><input style="width: 8em;" type="text" name="local_ip" id="local_ip" maxlength="15" size="15"/></td>
+                            <td><input style="width: 8em;" type="text" name="local_port" id="local_port" maxlength="16" size="8"/></td>
+                            <td>
+                                <select name="use_encryption" id="use_encryption">
+                                    <option value="false">false</option>
+                                    <option value="true">true</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="use_compression" id="use_compression">
+                                    <option value="true">true</option>
+                                    <option value="false">false</option>
+                                </select>
+                            </td>
+                            <td><input style="width: 8em;" type="text" name="remote_port" id="remote_port" maxlength="16" size="8" /></td>
+                            <td><input style="width: 16em;" type="text" name="subdomain" id="subdomain" size="24" /></td>
+                            <td><button class='cbi-button cbi-input-reload btn-add'>添加</button></td>
+                        </tr>
+                        <tr>
+                            <th>名称</th>
+                            <th>类型</th>
+                            <th>本地IP</th>
+                            <th>本地端口</th>
+                            <th>加密</th>
+                            <th>压缩</th>
+                            <th>远程端口</th>
+                            <th>主机头/自定义二级域名</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>名称</th>
+                            <th>类型</th>
+                            <th>本地IP</th>
+                            <th>本地端口</th>
+                            <th>加密</th>
+                            <th>压缩</th>
+                            <th>远程端口</th>
+                            <th>主机头/自定义二级域名</th>
+                            <th>操作</th>
+                        </tr>
+                        </tfoot>
+
+                    </table>
+
+                </div>
+
+            <br/>
+
+        </fieldset>
+        <br/>
+    </fieldset>
+    <div class="cbi-page-actions">
+        <!--
+        <input class="cbi-button cbi-button-save" type="submit" value="Save"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="Reset"/>
+        -->
+    </div>
+</form>
+
+<script>
+    $(document).ready(function() {
+        var table = $('#proxies-table').DataTable( {
+            "paging":   false,
+            "ajax": "/appcfg/frp-proxy",
+            "columns": [
+                { "data": "name" },
+                { "data": "type" },
+                { "data": "local_ip" },
+                { "data": "local_port" },
+                { "data": "use_encryption" },
+                { "data": "use_compression" },
+                { "data": "remote_port" },
+                { "data": "subdomain" },
+                {
+                    "targets": -1,
+                    "data": null,
+                    "defaultContent": "<button class='cbi-button cbi-input-reload btn-edit'>编辑</button> <button class='cbi-button cbi-input-remove btn-remove'>删除</button>"
+                }
+            ]
+        } );
+
+/*        $('#proxies-table tbody').on( 'click', 'tr', function () {
+            if ( $(this).hasClass('selected') ) {
+                $(this).removeClass('selected');
+            }
+            else {
+                table.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+            }
+        } );*/
+
+        $('#proxies-table tbody').on( 'click', 'button.btn-remove', function () {
+            let this_row = table.row( $(this).parents('tr') );
+            let data = this_row.data();
+            console.log( data.name );
+            alertify.confirm("删除确认", "确定删除所选?", function(){
+                $.post("/appcfg/frp-remove", {"name": data.name}, function (resp) {
+                    console.log(resp);
+                    if (resp.status == 0) {
+                        alertify.notify('隧道 ' + data.name + ' 移除成功。', 'success', 1, function(){  this_row.remove().draw( false ); });
+                    }
+                });
+            }, function () {});
+            return false;
+        }); //end remove
+        $('#proxies-table thead').on( 'click', 'button.btn-add', function () {
+            // let data = $('#proxies-form').serialize();
+            let data = {
+                "name": $('#name').val(),
+                "type": $('#type').val(),
+                "local_ip": $('#local_ip').val(),
+                "local_port": $('#local_port').val(),
+                "use_encryption": $('#use_encryption').val(),
+                "use_compression": $('#use_compression').val(),
+                "remote_port": $('#remote_port').val(),
+                "subdomain": $('#subdomain').val(),
+            };
+            console.log( data );
+            $.post("/appcfg/frp-save", data, function (resp) {
+                console.log(resp);
+                if (resp.status == 0) {
+                    alertify.notify('隧道 ' + data.name + ' 添加/保存 成功。', 'success', 1, function(){
+                        // table.row('.selected').remove().draw( false );
+                        let row_data = {
+                            "name": data.name,
+                            "type": data.type,
+                            "local_ip": data.local_ip,
+                            "local_port": data.local_port,
+                            "use_encryption": data.use_encryption,
+                            "use_compression": data.use_compression,
+                            "remote_port": data.remote_port,
+                            "subdomain": data.subdomain
+                        };
+
+                        //if is update
+                        if ($('.selected').length > 0) {
+                            table.row('.selected').data(row_data);
+                            $('.selected').removeClass('selected');
+                        } else {
+                            table.row.add(row_data).draw( false );
+                        }
+                        $('#proxies-form').trigger("reset");
+                        $('.btn-add').text("添加");
+                    });
+                } else {
+                    alertify.notify('隧道 ' + data.name + ' 添加失败。消息：' + resp.message, 'error', 3, function(){});
+                }
+            });
+            return false;
+        }); //end add
+
+        $('#proxies-table tbody').on( 'click', 'button.btn-edit', function () {
+            //remove prev added 'selected' class first
+            $('.selected').removeClass('selected');
+            $(this).parents('tr').addClass('selected');
+            let this_row = table.row( $(this).parents('tr') );
+            let data = this_row.data();
+            console.log( data );
+            $('#name').val(data.name);
+            $('#type').val(data.type);
+            $('#local_ip').val(data.local_ip);
+            $('#local_port').val(data.local_port);
+            $('#use_encryption').val(data.use_encryption);
+            $('#use_compression').val(data.use_compression);
+            $('#remote_port').val(data.remote_port);
+            $('#subdomain').val(data.subdomain);
+            $('.btn-add').text("保存");
+            // this_row.remove().draw( false );
+            return false;
+        }); //end edit
+    } );
+</script>
+
+{{template "common/footer"}}
+{{ end }}

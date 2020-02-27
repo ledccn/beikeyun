@@ -1,0 +1,195 @@
+{{ define "appcfg/transmission" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin","appcfg","transmission"];
+</script>
+
+<!-- typeahead style -->
+<link rel="stylesheet" href="/static/css/typeahead.css" />
+<script src="/static/js/typeahead/typeahead.jquery.min.js"></script>
+
+<form id="hacklog-form" method="post" name="cbi" action="/appcfg/transmission" enctype="multipart/form-data">
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">Transmission配置</h2>
+        <div class="cbi-map-descr">在这里，配置您的Transmission
+        </div>
+        <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section" id="cbi-system-system">
+            <legend>Transmission</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab"><a href="/appcfg/transmission">常规设置</a></li>
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab-disabled"><a href="/appcfg/transmission-extra">高级设置</a></li>
+            </ul>
+
+            <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section-node cbi-section-node-tabbed">
+
+                <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">运行状态</label>
+                        <div class="cbi-value-field">
+                            <input id="transmission-daemon-status" class="cbi-button cbi-input-save" type="button" value="Running" size="0">
+
+                            <a id="web_ui_link" target="_blank" class="cbi-button cbi-input-save quick-open" href="http://{{ GetHostname | attr }}:{{index .trcfg "rpc-port"}}">
+                                http://{{ GetHostname | attr }}:{{index .trcfg "rpc-port"}}
+                            </a>
+                        </div>
+                    </div>
+
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="peer-port">数据传输端口</label>
+                        <div class="cbi-value-field">
+                            <input  id="peer-port" name="peer-port" type="text"
+                                   class="cbi-input-text" value="{{index .trcfg "peer-port"}}" data-type="port" data-optional="false"/>
+                            默认 51413
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="rpc-port">RPC控制端口</label>
+                        <div class="cbi-value-field">
+                            <input  id="rpc-port" name="rpc-port" type="text"
+                                   class="cbi-input-text" value="{{index .trcfg "rpc-port"}}" data-type="port" data-optional="false"/>
+                            默认 9091
+                        </div>
+
+                    </div>
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="download-dir">默认下载目录</label>
+                        <div class="cbi-value-field">
+                            <input  id="download-dir" name="download-dir" type="text"
+                                   class="cbi-input-text typeahead" value="{{index .trcfg "download-dir"}}"/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="incomplete-dir">未下完的保存路径</label>
+                        <div class="cbi-value-field">
+                            <input  id="incomplete-dir" name="incomplete-dir" type="text"
+                                   class="cbi-input-text typeahead" value="{{index .trcfg "incomplete-dir"}}"/>
+
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="watch-dir-enabled">开启种子监视目录</label>
+                        <div class="cbi-value-field">
+                            <select class="cbi-input-select"  id="watch-dir-enabled" name="watch-dir-enabled" size="1">
+                            {{ $x := index .trcfg "watch-dir-enabled"}}
+                                <option {{ EqOutput false $x " selected " | attr}} value="false">关闭</option>
+                                <option {{ EqOutput true $x " selected " | attr}} value="true">开启</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="watch-dir">种子监视目录</label>
+                        <div class="cbi-value-field">
+                            <input  id="watch-dir" name="watch-dir" type="text"
+                                    class="cbi-input-text typeahead" value="{{index .trcfg "watch-dir"}}"/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="rpc-authentication-required">开启RPC远程访问验证</label>
+                        <div class="cbi-value-field">
+                            <select class="cbi-input-select"  id="rpc-authentication-required" name="rpc-authentication-required" size="1">
+                            {{ $x := index .trcfg "rpc-authentication-required"}}
+                                <option {{ EqOutput false $x " selected " | attr }} value="false">关闭</option>
+                                <option {{ EqOutput true $x " selected " | attr }} value="true">开启</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="rpc-username">RPC 用户名</label>
+                        <div class="cbi-value-field">
+                            <input autocomplete="new-username"  id="rpc-username" name="rpc-username" type="text"
+                                   class="cbi-input-text" value="{{index .trcfg "rpc-username"}}"/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="rpc-password">RPC 密码</label>
+                        <div class="cbi-value-field">
+                            <input autocomplete="new-password"  id="rpc-password" name="rpc-password" type="password"
+                                   class="cbi-input-text" value="{{index .trcfg "rpc-password"}}"/>
+                        </div>
+                    </div>
+
+                </div>
+            </fieldset>
+            <br/>
+
+
+        </fieldset>
+
+        <br/>
+    </div>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+</form>
+
+<script>
+    jQuery(function($) {
+        $('#rpc-port').change(function(){
+            let link = $('#web_ui_link');
+            console.log(link.attr("href"));
+            let href = new URL(link.attr("href"));
+            newlink = href.protocol + "//" + href.hostname + ":" + $(this).val();
+            link.attr("href", newlink);
+            link.text(newlink);
+            //top link
+            let top_link = $('#tr_web_link');
+            top_link.attr("href", newlink);
+        });
+
+        $('#blocklist-item-suggest').change(function () {
+            $('#blocklist-url').val($(this).val());
+            return false;
+        });
+
+        $('.typeahead').typeahead({
+            minLength: 1,
+            highlight: true,
+            hint: true,
+            offset: true
+         },
+       {
+            name: 'path',
+            display: 'value',
+            async:true,
+            limit: 20,
+            source: function (query, process, asyncResults) {
+            return $.get('/api/system/browse', { current: query }, function (data) {
+                let matches = [];
+                $.each(data.list, function(i, str) {
+                    matches.push({ value: str });
+                });
+                // process(matches);
+                asyncResults(matches);
+                console.log(matches);
+                },'json');
+            },
+      });
+
+        $('#hacklog-form').submit(function() {
+            $(this).ajaxSubmit({success:function(resp) {
+                    console.log(resp);
+                    msg_type = resp.error !== 0 ? 'error' : 'success';
+                    alertify.notify(resp.message, msg_type, 6, function(){});
+                }
+            });
+            return false;
+        });
+        processCheck('transmission-daemon', '#transmission-daemon-status');
+    });
+
+</script>
+
+{{template "common/footer"}}
+{{ end }}

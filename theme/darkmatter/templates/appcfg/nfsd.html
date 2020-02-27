@@ -1,0 +1,197 @@
+{{ define "appcfg/nfsd" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin","appcfg","nfsd"];
+</script>
+
+<!-- jquery.dataTables style -->
+<link rel="stylesheet" href="/static/js/datatables/datatables.css" />
+<script src="/static/js/datatables/datatables.min.js"></script>
+<!-- typeahead style -->
+<link rel="stylesheet" href="/static/css/typeahead.css" />
+<script src="/static/js/typeahead/typeahead.jquery.min.js"></script>
+
+<form id="proxies-form" method="post" name="cbi" action="/appcfg/nfsd" enctype="multipart/form-data">
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">NFSD配置</h2>
+        <div class="cbi-map-descr">
+            <strong>Android安装示例:</strong>
+            <pre>busybox mount -o ro,noatime,nolock,hard,intr,rsize=32768,wsize=32768,vers=3 -t nfs 192.168.8.108:/srv/nfs/music /mnt/music</pre>
+
+            您也可以使用bind方法：编辑<code>/etc/fstab</code>, 添加:
+            <pre>/media/mydisk/music /srv/nfs/music  none   bind   0   0</pre>
+			<strong>允许的客户端</strong>，可用三种方式填写此字段：<br />
+			1.单主机IP，仅允许指定IP访问；<br />
+			2.通配符*，允许所有访问；<br />
+			3.IP范围192.168.1.1/200，仅允许指定IP范围内的访问。
+        </div>
+        <fieldset class="cbi-section" id="cbi-system-system" style="overflow:visible;">
+            <legend>NFS规则</legend>
+
+            <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a" style="overflow:visible;">
+
+                <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+                    <table id="nfs-table" class="display cell-border" style="width:100%;">
+                        <thead>
+                         <tr id="edit-row" style="width: 100%;">
+                            <td style="width: 30%;"><input style="width: 100%;" class="my-typeahead" type="text" name="export_dir" id="export_dir" maxlength="256" size="256" placeholder="/media/movie"/></td>
+                            <td style="width: 20%;"><input  style="width: 100%;" type="text" name="hosts_allow" id="hosts_allow" maxlength="128" size="128" placeholder="192.168.8.0/24"/></td>
+                            <td style="width: 40%;"><input  style="width: 100%;" type="text" name="nfs_options" id="nfs_options" maxlength="128" size="128" value="rw,sync,root_squash,all_squash,insecure,no_subtree_check"/></td>
+                            <td style="width: 10%;"><button class='cbi-button cbi-input-reload btn-add'>添加</button></td>
+                        </tr>
+                        <tr>
+                            <th>挂载的完整路径</th>
+                            <th>允许客户端</th>
+                            <th>NFS参数</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>挂载的完整路径</th>
+                            <th>允许客户端</th>
+                            <th>NFS参数</th>
+                            <th>操作</th>
+                        </tr>
+                        </tfoot>
+
+                    </table>
+
+                </div>
+
+            <br/>
+
+        </fieldset>
+        <br/>
+    </fieldset>
+    <div class="cbi-page-actions">
+        <!--
+        <input class="cbi-button cbi-button-save" type="submit" value="Save"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="Reset"/>
+        -->
+    </div>
+</form>
+
+<script>
+    $(document).ready(function() {
+        var table = $('#nfs-table').DataTable( {
+            "paging":   false,
+            "ajax": "/appcfg/nfsd/exports",
+            "columns": [
+                { "data": "export_dir" },
+                { "data": "hosts_allow" },
+                { "data": "nfs_options" },
+                {
+                    "targets": -1,
+                    "data": null,
+                    "defaultContent": "<button class='cbi-button cbi-input-reload btn-edit'>编辑</button> <button class='cbi-button cbi-input-remove btn-remove'>移除</button>"
+                }
+            ]
+        } );
+
+/*        $('#proxies-table tbody').on( 'click', 'tr', function () {
+            if ( $(this).hasClass('selected') ) {
+                $(this).removeClass('selected');
+            }
+            else {
+                table.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+            }
+        } );*/
+
+        $('#nfs-table tbody').on( 'click', 'button.btn-remove', function () {
+            let this_row = table.row( $(this).parents('tr') );
+            let data = this_row.data();
+            console.log( data.export_dir );
+            alertify.confirm("提示", "确实要移除所选的NFS共享吗 ?", function(){
+                $.post("/appcfg/nfsd", {"action": "remove","export_dir": data.export_dir}, function (resp) {
+                    console.log(resp);
+                    if (resp.error == 0) {
+                        alertify.notify('NFS共享 ' + data.name + ' 移除成功。', 'success', 1, function(){  this_row.remove().draw( false ); });
+                    }
+                });
+            }, function () {});
+            return false;
+        }); //end remove
+        $('#nfs-table thead').on( 'click', 'button.btn-add', function () {
+            // let data = $('#proxies-form').serialize();
+            let data = {
+                "action": "add",
+                "export_dir": $('#export_dir').val(),
+                "hosts_allow": $('#hosts_allow').val(),
+                "nfs_options": $('#nfs_options').val(),
+            };
+            console.log( data );
+            $.post("/appcfg/nfsd", data, function (resp) {
+                console.log(resp);
+                if (resp.error == 0) {
+                    alertify.notify('NFS共享 ' + data.export_dir + ' 添加/保存 成功。', 'success', 1, function(){
+                        // table.row('.selected').remove().draw( false );
+                        let row_data = {
+                            "export_dir": data.export_dir,
+                            "hosts_allow": data.hosts_allow,
+                            "nfs_options": data.nfs_options,
+                        };
+
+                        //if is update
+                        if ($('.selected').length > 0) {
+                            table.row('.selected').data(row_data);
+                            $('.selected').removeClass('selected');
+                        } else {
+                            table.row.add(row_data).draw( false );
+                        }
+                        $('#proxies-form').trigger("reset");
+                        $('.btn-add').text("添加");
+                    });
+                } else {
+                    alertify.notify('NFS共享 ' + data.export_dir + ' 添加失败。' + resp.message, 'error', 3, function(){});
+                }
+            });
+            return false;
+        }); //end add
+
+        $('#nfs-table tbody').on( 'click', 'button.btn-edit', function () {
+            //remove prev added 'selected' class first
+            $('.selected').removeClass('selected');
+            $(this).parents('tr').addClass('selected');
+            let this_row = table.row( $(this).parents('tr') );
+            let data = this_row.data();
+            console.log( data );
+            $('#export_dir').val(data.export_dir);
+            $('#hosts_allow').val(data.hosts_allow);
+            $('#nfs_options').val(data.nfs_options);
+            $('.btn-add').text("保存");
+            // this_row.remove().draw( false );
+            return false;
+        }); //end edit
+
+        $('.my-typeahead').typeahead({
+                    minLength: 1,
+                    highlight: true,
+                    hint: true,
+                    offset: true
+                },
+                {
+                    name: 'path',
+                    display: 'value',
+                    async:true,
+                    limit: 20,
+                    source: function (query, process, asyncResults) {
+                        return $.get('/api/system/browse', { current: query }, function (data) {
+                            let matches = [];
+                            $.each(data.list, function(i, str) {
+                                matches.push({ value: str });
+                            });
+                            // process(matches);
+                            asyncResults(matches);
+                            console.log(matches);
+                        },'json');
+                    },
+        });
+    } );
+</script>
+
+{{template "common/footer"}}
+{{ end }}

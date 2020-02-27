@@ -1,0 +1,265 @@
+{{ define "status/disks" }}
+{{template "common/header" }}
+
+<script>
+    // thanks for Jo-Philipp Wich <jow@openwrt.org>
+    var luciLocation = ["admin","status","disks"];
+</script>
+
+<style type="text/css">
+	span:target {
+		color: blue;
+		text-decoration: underline;
+    }
+    span.disabled {
+        color: gray;
+    }
+</style>
+<!-- jquery.modal -->
+<link rel="stylesheet" href="/static/js/jquery-modal/jquery.modal.min.css" />
+<script src="/static/js/jquery-modal/jquery.modal.min.js"></script>
+
+
+<h2 name="content">磁盘状态</h2>
+<div class="cbi-map-descr">
+    <input class="cbi-input-checkbox" type="checkbox" id="unlock-danger">
+    <label class="cbi-button" for="unlock-danger">解锁超级权限</label>
+</div>
+<br />
+<ul class="cbi-tabmenu">
+	<li class="cbi-tab"><a href="/status/disks">已挂载的磁盘</a></li>
+</ul>
+
+<div class="cbi-map" style="position: relative">
+
+	<fieldset class="cbi-section">
+
+{{range $key, $disk := $.disks}}
+	<h3>
+		已挂载的磁盘: {{ $disk.Disk.DiskDev }}
+		<button data-dev="{{ $disk.Disk.DiskDev }}" class="disk-eject danger disabled">弹出</button>
+		<button data-dev="{{ $disk.Disk.DiskDev }}" data-modal="#disk-smart-div" class="disk-smart cbi-button cbi-button-save success">S.M.A.R.T</button>
+	</h3>
+			<table class="cbi-section-table" style="font-size:90%">
+
+					<tr class="cbi-section-table-titles cbi-rowstyle-2">
+						<th class="cbi-section-table-cell" style="text-align:left" colspan="11">
+							<br />
+{{ if ne $disk.Disk.SerialNumber "" }}
+							序列号: <span class="bs-label bs-label-info">{{ $disk.Disk.SerialNumber }}</span>
+{{ end }}
+{{ if ne $disk.Disk.Label "" }}
+							卷标: <span class="bs-label bs-label-info">{{ $disk.Disk.Label }}</span>
+{{ end }}
+{{ if ne $disk.Disk.Temp.Temp "" }}
+    						固件: <span class="bs-label bs-label-info">{{ $disk.Disk.Temp.Model }}</span>
+                            温度: <span class="bs-label bs-label-info">{{ $disk.Disk.Temp.Temp }}</span>
+{{ end }}
+						</th>
+					</tr>
+					<tr class="cbi-section-table-descr">
+						<th class="cbi-section-table-cell">设备</th>
+						<th class="cbi-section-table-cell">挂载点</th>
+                        <th class="cbi-section-table-cell">卷标</th>
+						<th class="cbi-section-table-cell">文件系统</th>
+                        <th class="cbi-section-table-cell">可用容量</th>
+                        <th class="cbi-section-table-cell">已用容量/总容量</th>
+						<th class="cbi-section-table-cell" style="width:30%">参数</th>
+						<td>操作</td>
+					</tr>
+
+{{range $k, $part := $disk.Parts }}
+						<tr class="cbi-section-table-row cbi-rowstyle-1">
+							<td style="width: 15%">{{ $part.DiskStat.Device }}</td>
+							<td style="white-space: nowrap;width: 200px;">{{ $part.DiskStat.Mountpoint }}</td>
+                            <td style="white-space: nowrap;width: 200px;">{{ $part.Label }}</td>
+							<td style="width: 10%">{{ $part.DiskStat.Fstype }}</td>
+                            <td style="width: 20%">
+								<div style="width:100%; position:relative; border:1px solid #999999;background: #1f1e1a;">
+									<div style="background-color:#CCCCCC; width:{{ $part.FreePercent }}%; height:15px;background-color: rgba(117,137,12,.75)!important">
+										<div style="position:absolute; left:0; top:0; text-align:center; width:100%; color:#fafafa!important">
+											<small>{{ $part.UsageStat.Free }} GiB / {{ $part.UsageStat.Total }} GiB ({{ $part.FreePercent }}%)</small>
+										</div>
+									</div>
+								</div>
+							</td>
+                            <td>
+							{{ $part.UsageStat.Used }} GiB / {{ $part.UsageStat.Total }} GiB
+							</td>
+							<td style="width:30%"><small>{{ $part.DiskStat.Opts }}</small></td>
+							<td>
+                                <a data-label="{{ $part.Label }}" data-dev-part="{{ $part.DiskStat.Device }}" class="no-fade-in" data-modal="#set-part-label" href="#set-part-label">
+									<span class="label success">卷标</span></a>
+                                <button data-dev-part="{{ $part.DiskStat.Device }}" class="disk-partition-format danger disabled">格式化</button>
+							</td>
+						</tr>
+{{end}}
+			</table>
+{{end}}
+	</fieldset>
+
+
+
+    <fieldset class="cbi-section" style="width: 300px">
+        <ul class="cbi-tabmenu">
+            <li class="cbi-tab"><a href="javascript:void(0);">所有磁盘</a></li>
+        </ul>
+    <table class="cbi-section-table" style="font-size:90%">
+        <tr class="cbi-section-table-descr">
+            <th class="cbi-section-table-cell">设备</th>
+            <td class="cbi-section-table-cell">操作</td>
+        </tr>
+		{{range $devname := $.alldisks}}
+            <tr class="cbi-section-table-row cbi-rowstyle-1">
+                <td style="width: 15%">{{ $devname }}</td>
+                <td>
+					<button data-devname="{{ $devname }}" class="disk-auto-partition danger disabled">自动分区</button>
+                </td>
+            </tr>
+		{{end}}
+        </table>
+    </fieldset>
+</div>
+
+
+<script>
+    jQuery(function($) {
+        $('#unlock-danger').click(function () {
+			if ($(this).is(':checked')) {
+			    $('.danger').removeClass("disabled");
+			} else {
+                $('.danger').addClass("disabled");
+			}
+        });
+        $('.disk-eject').click(function (e) {
+            if ($(this).hasClass('disabled')) {
+                alertify.alert("提示", "拒绝访问！<br /> 请勾选 解锁超级权限！");
+                return false;
+			}
+            let that = this;
+            alertify.confirm("是否弹出", "弹出您所操作的磁盘 ?", function(){
+                let dev = $(that).attr('data-dev');
+                $.post("/api/disk/eject", {"dev": dev}, function (resp) {
+                    console.log(resp);
+                    if (resp.error == 0) {
+                        alertify.notify('磁盘 ' + dev + ' 弹出成功。', 'success', 1, function(){  location.reload(); });
+                    } else {
+                        alertify.notify('磁盘 ' + dev + ' 弹出失败！!', 'error', 1, function(){});
+					}
+                });
+            }, function () {});
+            return false;
+        });
+		//format
+        $('.disk-partition-format').click(function (e) {
+            if ($(this).hasClass('disabled')) {
+                alertify.alert("提示", "拒绝访问！<br /> 请勾选 解锁超级权限！");
+                return false;
+            }
+            let that = this;
+            alertify.confirm("是否格式化", "是否将所选分区格式化为ext4文件系统 ? <br />将删除此分区所有数据!<br /> 是否确定?", function(){
+                $(".main > .loading").fadeIn("fast");
+                alertify.notify("正在格式化 ..., 可能需要些时间, 请稍后...", 'success', 3, function () {});
+                let dev_part = $(that).attr('data-dev-part');
+                $.post("/api/disk/format", {"partition": dev_part, "fs_type": "ext4"}, function (resp) {
+                    console.log(resp);
+                    $(".main > .loading").fadeOut("fast");
+                    if (resp.error == 0) {
+                        alertify.notify('磁盘分区 ' + dev_part + ' 格式化成功.', 'success', 6, function(){  location.reload(); });
+                    } else {
+                        alertify.notify(resp.message, 'error', 3, function(){});
+                    }
+                });
+            }, function () {});
+            return false;
+        });
+        $('a[data-modal]').on('click', function() {
+            let disk_part = $(this).data('dev-part');
+            let disk_label = $(this).data('label');
+            $('#disk_part').val(disk_part);
+            $('#disk_label').val(disk_label);
+            $($(this).data('modal')).modal();
+            return false;
+        });
+        $('#set-label').click(function () {
+			let label = $('#disk_label').val();
+			let disk_part = $('#disk_part').val();
+            $.post("/api/disk/label", {"partition": disk_part, "label": label}, function (resp) {
+                console.log(resp);
+                if (resp.error == 0) {
+                    $.modal.close();
+                    alertify.notify('磁盘分区 ' + disk_part + ' 卷标设置成功.', 'success', 2, function(){  location.reload(); });
+                } else {
+                    alertify.notify(resp.message, 'error', 3, function(){});
+                }
+            });
+        });
+        //partition
+        $('.disk-auto-partition').click(function (e) {
+            if ($(this).hasClass('disabled')) {
+                alertify.alert("提示", "拒绝访问！<br /> 请勾选 解锁超级权限！");
+                return false;
+            }
+            let that = this;
+            alertify.confirm("自动分区确认", "是否为磁盘重新分区? <br />这将删除此磁盘所有数据!<br /> 是否确定?", function(){
+                $(".main > .loading").fadeIn("fast");
+                alertify.notify("正在分区中 ..., 可能需要些时间, 请稍后...", 'success', 6, function () {});
+                let devname = $(that).attr('data-devname');
+                $.post("/api/disk/partition", {"devname": devname, "fs_type": "ext4"}, function (resp) {
+                    console.log(resp);
+                    $(".main > .loading").fadeOut("fast");
+                    if (resp.error == 0) {
+                        alertify.notify('磁盘 ' + devname + ' 自动分区成功.', 'success', 6, function(){  location.reload(); });
+                    } else {
+                        alertify.notify(resp.message, 'error', 6, function(){});
+                    }
+                });
+            }, function () {});
+            return false;
+        });
+
+        //smart
+        $('.disk-smart').on('click', function() {
+            let disk_dev = $(this).data('dev');
+            let modal_div = $(this).data('modal');
+            $.post("/api/disk/smart", {"disk": disk_dev}, function (resp) {
+                console.log(resp);
+                if (resp.error == 0) {
+                    alertify.notify('磁盘 S.M.A.R.T ' + disk_dev + ' 检测完毕.', 'success', 2, function(){});
+                    $('#disk-smart-info').html('<pre style="overflow: scroll;max-height: 660px;">'+ resp.data + '</pre>');
+                    $(modal_div).modal();
+                } else {
+                    alertify.notify(resp.message, 'error', 3, function(){});
+                }
+            });
+            return false;
+        });
+    });
+</script>
+
+<!-- Modal HTML embedded directly into document -->
+<div id="set-part-label" class="modal">
+    <div class="cbi-value">
+        <label class="cbi-value-title" for="dht-listen-port">卷标</label>
+        <div class="cbi-value-field">
+            <input type="hidden" id="disk_part" name="disk_part" value="">
+            <input id="disk_label" name="disk_label" type="text" class="cbi-input-text" value=""/>
+        </div>
+    </div>
+    <div style="float: right;margin-top: 10px;">
+        <a href="#" id="set-label"><span class="label success">设置</span></a>
+        <a href="#" rel="modal:close"><span class="label success">关闭</span></a>
+    </div>
+</div>
+
+<div id="disk-smart-div" class="modal" style="max-width:900px;">
+	<div id="disk-smart-info" style="font-size: .8em;">
+		loading ...
+	</div>
+	<div style="float: right;margin-top: 10px;">
+		<a href="#" rel="modal:close"><span class="label success">关闭</span></a>
+	</div>
+</div>
+
+{{template "common/footer"}}
+{{ end }}

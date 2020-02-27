@@ -1,0 +1,14 @@
+{{ define "status/dmesg" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin","status","dmesg"];
+</script>
+
+<h2 name="content">内核日志</h2>
+<div id="content_syslog">
+<textarea data-autoresize style="font-size: 12px;box-sizing: border-box;resize: none;" readonly="readonly" wrap="off" rows="488" id="syslog">{{ .dmesg }}</textarea>
+</div>
+
+{{template "common/footer"}}
+{{ end }}

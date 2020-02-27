@@ -1,0 +1,197 @@
+{{ define "appcfg/smb-users" }}
+{{template "common/header" }}
+
+
+<script>
+    var luciLocation = ["admin","appcfg","smb"];
+</script>
+
+<form method="post" name="cbi" action="/" enctype="multipart/form-data">
+    <div>
+        <input type="hidden" name="token" value="270ecd947ed9c903589480de00ff97c4"/>
+        <input type="hidden" name="cbi.submit" value="1"/>
+        <input type="submit" value="Save" class="hidden"/>
+    </div>
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">Samba配置</h2>
+        <div class="cbi-map-descr">
+            在这里，您可以新增/删除 Samba用户
+        </div>
+        <fieldset class="cbi-section" id="cbi-system-system">
+            <legend>Samba</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab-disabled">
+                    <a href="/appcfg/smb">全局设置</a>
+                </li>
+                <li id="tab.system.cfg02e48a.users" class="cbi-tab-disabled">
+                    <a href="/appcfg/smb-share">共享目录</a>
+                </li>
+                <li id="tab.system.cfg02e48a.users" class="cbi-tab">
+                    <a href="/appcfg/smb-users">用户</a>
+                </li>
+                <li id="tab.system.cfg02e48a.log" class="cbi-tab-disabled">
+                    <a href="/appcfg/smb-log">日志</a>
+                </li>
+            </ul>
+
+            <!-- tblsection -->
+            <fieldset class="cbi-section" id="cbi-table-table">
+                <div class="cbi-section-descr">注意：Samba用户密码与系统用户的密码无关。</div>
+                <div class="cbi-section-node">
+                    <table class="cbi-section-table">
+                    <tr class="cbi-section-table-titles">
+                        <th class="cbi-section-table-cell">用户名</th>
+                        <th class="cbi-section-table-cell">uid</th>
+                        <th class="cbi-section-table-cell">状态</th>
+                        <th class="cbi-section-table-cell">最后更新时间</th>
+                        <th class="cbi-section-table-cell">重置密码</th>
+                        <th class="cbi-section-table-cell">操作</th>
+                    </tr>
+                    <tr class="cbi-section-table-descr">
+                        <th class="cbi-section-table-cell"></th>
+                        <th class="cbi-section-table-cell"></th>
+                        <th class="cbi-section-table-cell"></th>
+                        <th class="cbi-section-table-cell"></th>
+						<th class="cbi-section-table-cell"></th>
+						<th class="cbi-section-table-cell"></th>
+                    </tr>
+
+                {{range $smbuser := $.smbusers}}
+                    <tr class="cbi-section-table-row cbi-rowstyle-{{ $smbuser.Name }}" id="cbi-table-{{ $smbuser.Name }}">
+
+                        <td class="cbi-value-field">
+                            <div class="cbi-table-USER" data-index="" data-depends="[]">
+                            {{ $smbuser.Name }}
+                            </div>
+                        </td>
+
+                        <td class="cbi-value-field">
+                            <div class="cbi-table-UID" data-index="" data-depends="[]">
+                            {{ $smbuser.Uid }}
+                            </div>
+                        </td>
+
+                        <td class="cbi-value-field">
+                            <div class="cbi-table-UID" data-index="" data-depends="[]">
+                            {{ if $smbuser.Flags.DisabledFlag }}
+                                <span class="label danger">已禁用</span>
+                                {{ else }}
+                                <span class="label success">正常</span>
+                                    {{ end }}
+                            </div>
+                        </td>
+
+                        <td class="cbi-value-field">
+                            <div class="cbi-table-LCT" data-index="" data-depends="[]">
+                            {{ $smbuser.LCT }}
+                            </div>
+                        </td>
+
+                        <td class="cbi-value-field">
+                            <div class="cbi-table-COMMAND" data-index="" data-depends="[]">
+                                <input type="password" id="passwd-{{ $smbuser.Name }}" name="passwd" value="">
+                                <input class="cbi-button cbi-input-reload user-action" data-action="passwd" data-username="{{ $smbuser.Name }}" type="button" name="change-passwd" value="应用" />
+                            </div>
+                        </td>
+
+                        <td class="cbi-value-field">
+                            <div data-index="" data-depends="[]">
+                                <input style="display:{{ EqOutput $smbuser.Name "root" "none" | attr }};" class="cbi-button cbi-input-remove user-action"  data-action="remove" data-username="{{ $smbuser.Name }}" type="button" name="remove" value="删除" />
+                                <input style="display:{{ EqOutput $smbuser.Flags.DisabledFlag true "none" | attr }};" class="cbi-button cbi-input-reset user-action" data-action="disable" data-username="{{ $smbuser.Name }}" type="button" name="user.Disable" value="禁用" />
+                                <input style="display:{{ EqOutput $smbuser.Flags.DisabledFlag false "none" | attr }};" class="cbi-button cbi-input-reload user-action" data-action="enable" data-username="{{ $smbuser.Name }}" type="button" name="user.Enable" value="启用" />
+                            </div>
+                        </td>
+
+                    </tr>
+                {{end}}
+
+                </table>
+
+                </div>
+            </fieldset>
+            <!-- /tblsection -->
+
+            <br/>
+
+
+        </fieldset>
+        <br/>
+    </div>
+</form>
+
+        <fieldset class="cbi-section">
+            <legend>添加新用户</legend>
+        <form method="post" name="cbi" action="/appcfg/smb-users" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="add">
+
+            <fieldset class="cbi-section" id="cbi-table-table-add-user">
+                <div class="cbi-section-descr">
+					添加新Samba用户
+				</div>
+                <div class="cbi-section-node">
+                    <table class="cbi-section-table">
+                        <tr class="cbi-section-table-titles">
+                            <th class="cbi-section-table-cell">用户名</th>
+                            <th class="cbi-section-table-cell">密码</th>
+                        </tr>
+                        <tr class="cbi-section-table-descr">
+                            <th class="cbi-section-table-cell"></th>
+                            <th class="cbi-section-table-cell"></th>
+                        </tr>
+                        <tr class="cbi-section-table-row cbi-rowstyle-adduser" id="cbi-table-adduser">
+
+                            <td class="cbi-value-field">
+                                <div class="cbi-table-USER" data-index="" data-depends="[]">
+                                    <input autocomplete="hacklog-username" type="text" id="username" name="username" value="">
+                                </div>
+                            </td>
+
+                            <td class="cbi-value-field">
+                                <div class="cbi-table-COMMAND" data-index="" data-depends="[]">
+                                    <input autocomplete="hacklog-passwd" type="password" id="passwd" name="passwd" value="">
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </fieldset>
+            <div class="cbi-page-actions">
+                <input class="cbi-button cbi-button-save action-add" type="submit" value="保存"/>
+                <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+            </div>
+        </form>
+        </fieldset>
+
+
+
+<script>
+    jQuery(function($) {
+        $('.user-action').click(function (e) {
+            var username = $(this).attr('data-username');
+            var action = $(this).attr('data-action');
+            var passwd = '';
+            if (action == 'remove' && !confirm("确定删除此用户吗?")) {
+                return false;
+            }
+            if (action == 'passwd') {
+                passwd = $('#passwd-' + username).val();
+            }
+            $.post("/appcfg/smb-users",{"username": username, "passwd":passwd, "action": action}, function (resp) {
+                msg_type = resp.error !== 0 ? 'error' : 'success';
+                alertify.notify(resp.message, msg_type, 2, function(){location.reload();});
+            });
+            return false;
+        });
+        $('.action-add').click(function (e) {
+            var username = $(this).attr('data-username');
+            $.post("/appcfg/smb-users",{"username": $('#username').val(), "passwd": $('#passwd').val(), "action": "add"}, function (resp) {
+                msg_type = resp.error !== 0 ? 'error' : 'success';
+                alertify.notify(resp.message, msg_type, 2, function(){location.reload();});
+            });
+            return false;
+        });
+    })
+</script>
+{{template "common/footer"}}
+{{ end }}

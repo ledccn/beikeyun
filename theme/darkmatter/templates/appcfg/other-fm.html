@@ -1,0 +1,130 @@
+{{ define "appcfg/other-fm" }}
+{{template "common/header" }}
+
+
+<script>
+    var luciLocation = ["admin","appcfg","other"];
+</script>
+
+<!-- typeahead style -->
+<link rel="stylesheet" href="/static/css/typeahead.css" />
+<script src="/static/js/typeahead/typeahead.jquery.min.js"></script>
+
+<form id="hacklog-form" method="post" name="cbi" action="/appcfg/other-fm" enctype="multipart/form-data">
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">other其他配置</h2>
+        <div class="cbi-map-descr">Filemanager配置</div>
+        <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section" id="cbi-system-system">
+            <legend>Filemanager</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.ftp" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-ftp">FTP</a>
+                </li>
+                <li id="tab.system.cfg02e48a.fm" class="cbi-tab">
+                    <a href="/appcfg/other-fm">Filemanager</a>
+                </li>
+                <li id="tab.system.cfg02e48a.sync" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-sync">Syncthing</a>
+                </li>
+                <li id="tab.system.cfg02e48a.gerbera" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-gerbera">Gerbera</a>
+                </li>
+                <li id="tab.system.cfg02e48a.jellyfin" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-jellyfin">Jellyfin</a>
+                </li>
+                <li id="tab.system.cfg02e48a.docker" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-docker">Docker</a>
+                </li>
+            </ul>
+
+            <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+                <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">运行状态</label>
+                        <div class="cbi-value-field">
+                            <input class="process-status cbi-button cbi-input-save" type="button" value="Running" >
+                            <a id="web_ui_link" target="_blank" class="cbi-button cbi-input-save quick-open" href="https://{{ GetHostname | attr }}:{{ SysCfg "app.fm.fm_http_port" "8081" }}/login">Web UI</a>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="fm_http_port">监听端口</label>
+                        <div class="cbi-value-field">
+                            <input id="fm_http_port" name="fm_http_port" type="text" maxlength="5"
+                                   class="cbi-input-text" value="{{ SysCfg "app.fm.fm_http_port" "8081" }}" />
+                            默认 8081
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="default_scope">默认根路径</label>
+                        <div class="cbi-value-field">
+                            <input id="default_scope" name="default_scope" type="text"
+                                   class="cbi-input-text typeahead" value="{{ SysCfg "app.fm.default_scope" "/media" }}" />
+                            默认 /media
+                        </div>
+                    </div>
+
+                </div>
+            <br/>
+        </fieldset>
+        </fieldset>
+    </div>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+
+</form>
+
+<script>
+    jQuery(function($) {
+        $('.typeahead').typeahead({
+                    minLength: 1,
+                    highlight: true,
+                    hint: true,
+                    offset: true
+                },
+                {
+                    name: 'path',
+                    display: 'value',
+                    async: true,
+                    limit: 20,
+                    source: function (query, process, asyncResults) {
+                        return $.get('/api/system/browse', {current: query}, function (data) {
+                            var matches = [];
+                            $.each(data.list, function (i, str) {
+                                matches.push({value: str});
+                            });
+                            // process(matches);
+                            asyncResults(matches);
+                            console.log(matches);
+                        }, 'json');
+                    },
+                });
+        $('#fm_http_port').blur(function(){
+            let link = $('#web_ui_link');
+            let href = new URL(link.attr("href"));
+            newlink = "https://" + href.hostname + ":" + $(this).val();
+            link.attr("href", newlink);
+            //top link
+            let top_link = $('#fm_web_link');
+            top_link.attr("href", newlink);
+        });
+        $('#hacklog-form').submit(function() {
+            $(this).ajaxSubmit({success:function(resp) {
+                    console.log(resp);
+                    msg_type = resp.error !== 0 ? 'error' : 'success';
+                    alertify.notify(resp.message, msg_type, 2, function(){processCheck('filebrowser', '.process-status');});
+                }
+            });
+            return false;
+        });
+        processCheck('filebrowser', '.process-status');
+    });
+</script>
+
+{{template "common/footer"}}
+{{ end }}

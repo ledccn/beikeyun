@@ -1,0 +1,264 @@
+{{ define "appcfg/frp" }}
+{{template "common/header" }}
+
+
+<script>
+    var luciLocation = ["admin","appcfg","frp"];
+</script>
+
+<form id="hacklog-form" method="post" name="cbi" action="/appcfg/frp" enctype="application/x-www-form-urlencoded">
+    <div>
+        <input type="hidden" name="token" value="270ecd947ed9c903589480de00ff97c4"/>
+        <input type="hidden" name="cbi.submit" value="1"/>
+        <input type="submit" value="Save" class="hidden"/>
+    </div>
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">FRP</h2>
+        <div class="cbi-map-descr">在这里您可以配置frpc客户端。
+        </div>
+        <fieldset class="cbi-section" id="cbi-system-system">
+            <legend>基础配置</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab">
+                    <a href="/appcfg/frp">常规设置</a>
+                </li>
+                <li id="tab.system.cfg02e48a.log" class="cbi-tab-disabled">
+                    <a href="/appcfg/frp-proxies">代理设置</a>
+                </li>
+                <li id="tab.system.cfg02e48a.log" class="cbi-tab-disabled">
+                    <a href="/appcfg/frp-log">运行日志</a>
+                </li>
+            </ul>
+
+            <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+                <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">运行状态</label>
+                        <div class="cbi-value-field">
+                            <input id="frpc-status" class="cbi-button cbi-input-save" type="button" value="frpc Running">
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">代理状态</label>
+                        <div class="cbi-value-field">
+
+                            <input id="frpc-working-status" class="cbi-button cbi-input-save" type="button" value="...">
+
+                            <a target="_blank" id="web_ui_link" class="cbi-button cbi-input-save no-fade-in"
+                               href="http://{{ GetHostname | attr }}:{{ .frpcfg.Common.AdminPort }}">
+                                frpc admin
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">Frps服务器地址</label>
+                        <div class="cbi-value-field">
+                            <input name="common.server_addr" type="text"
+                                    class="cbi-input-text" value="{{ .frpcfg.Common.ServerAddr }}" data-type="string" data-optional="false"/>
+                            <a target="_blank" class="cbi-button cbi-input-save no-fade-in" href="https://frps-deploy.80x86.io/">Frps自动部署工具</a>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">Frps服务器端口</label>
+                        <div class="cbi-value-field">
+                            <input name="common.server_port" type="text"
+                                   class="cbi-input-text" value="{{ .frpcfg.Common.ServerPort }}" data-type="string" data-optional="false"/>
+                            默认 7000
+                        </div>
+                    </div>
+
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">日志文件</label>
+                        <div class="cbi-value-field">
+                            <input name="common.log_file" type="text" readonly
+                                   class="cbi-input-text" value="{{ .frpcfg.Common.LogFile }}" data-type="string" data-optional="false"/>
+                            只读，路径不可更改
+                        </div>
+                    </div>
+
+                    <!-- trace, debug, info, warn, error -->
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">日志级别</label>
+                        <div class="cbi-value-field">
+                            {{ $x := .frpcfg.Common.LogLevel }}
+                            <select name="common.log_level" class="cbi-input-select" tabindex="4">
+                                <option {{ EqOutput "trace" $x " selected " | attr }} value="trace">trace</option>
+                                <option {{ EqOutput "debug" $x " selected " | attr }} value="debug">debug</option>
+                                <option  {{ EqOutput "info" $x " selected " | attr }} value="info">info</option>
+                                <option  {{ EqOutput "warn" $x " selected " | attr }} value="warn">warn</option>
+                                <option  {{ EqOutput "error" $x " selected " | attr }} value="error">error</option>
+                            </select>
+                            默认 info
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">验证失败退出</label>
+                        <div class="cbi-value-field">
+                            {{ $lfe := .frpcfg.Common.LoginFailExit }}
+                            <select name="common.login_fail_exit" class="cbi-input-select" tabindex="4">
+                                <option {{ EqOutput "false" $lfe " selected " | attr }} value="false">NO</option>
+                                <option {{ EqOutput "true" $lfe " selected " | attr }} value="true">YES</option>
+                            </select>
+                            默认 NO (一直尝试，直到成功)
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">日志最大天数</label>
+                        <div class="cbi-value-field">
+                            <input name="common.log_max_days" type="text"
+                                    class="cbi-input-text" value="{{ .frpcfg.Common.LogMaxDays }}" data-type="string" data-optional="false"/>
+                            默认 3
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">验证Token</label>
+                        <div class="cbi-value-field">
+                            <input id="token" name="common.token" type="password" autocomplete="off"
+                                    class="cbi-input-text" value="{{ .frpcfg.Common.Token }}" data-type="string" data-optional="false"/>
+                            <img src="/static/img/eye.png" style="vertical-align:middle"
+                                 title="Reveal/hide password"
+                                 onclick="var e = document.getElementById('token'); e.type = (e.type=='password') ? 'text' : 'password';"/>
+                            与Frps服务器所配置的'token'相同。
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">连接池</label>
+                        <div class="cbi-value-field">
+                            <input name="common.pool_count" type="text"
+                                    class="cbi-input-text" value="{{ .frpcfg.Common.PoolCount }}" data-type="string" data-optional="false"/>
+                            指定预创建连接的数量，默认值5。
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">TCP多路复用</label>
+                        <div class="cbi-value-field">
+                            <input name="common.pool_count" type="text"
+                                    class="cbi-input-text" value="{{ .frpcfg.Common.TCPMux }}" data-type="string" data-optional="false"/>
+                            该配置项服务端和客户端必须一致。
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">用户身份</label>
+                        <div class="cbi-value-field">
+                            <input name="common.user" type="text" autocomplete="off"
+                                    class="cbi-input-text" value="{{ .frpcfg.Common.User }}" data-type="string" data-optional="false"/>
+                            代理名称将更改为{user}.{proxy}
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">心跳间隔</label>
+                        <div class="cbi-value-field">
+                            <input name="common.heartbeat_interval" type="text"
+                                    class="cbi-input-text" value="{{ .frpcfg.Common.HeartbeatInterval }}" data-type="string" data-optional="false"/>
+                            默认 3
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">心跳超时</label>
+                        <div class="cbi-value-field">
+                            <input name="common.heartbeat_timeout" type="text"
+                                    class="cbi-input-text" value="{{ .frpcfg.Common.HeartbeatTimeout }}" data-type="string" data-optional="false"/>
+                            默认 3
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">Admin UI地址</label>
+                        <div class="cbi-value-field">
+                            <input name="common.admin_addr" type="text"
+                                   class="cbi-input-text" value="{{ .frpcfg.Common.AdminAddr }}" data-type="string" data-optional="false"/>
+                            默认 0.0.0.0
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">Admin UI端口</label>
+                        <div class="cbi-value-field">
+                            <input id="admin_port" name="common.admin_port" type="text"
+                                   class="cbi-input-text" value="{{ .frpcfg.Common.AdminPort }}" data-type="string" data-optional="false"/>
+                            默认 7400
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">Admin UI用户</label>
+                        <div class="cbi-value-field">
+                            <input name="common.admin_user" type="text"
+                                   class="cbi-input-text" value="{{ .frpcfg.Common.AdminUser }}" data-type="string" data-optional="false"/>
+                            默认 admin
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">Admin UI密码</label>
+                        <div class="cbi-value-field">
+                            <input id="admin_pwd" name="common.admin_pwd" type="password"
+                                   class="cbi-input-text" value="{{ .frpcfg.Common.AdminPwd }}" data-type="string" data-optional="false"/>
+                            <img src="/static/img/eye.png" style="vertical-align:middle"
+                                 title="Reveal/hide password"
+                                 onclick="var e = document.getElementById('admin_pwd'); e.type = (e.type=='password') ? 'text' : 'password';"/>
+                            默认 admin
+                        </div>
+                    </div>
+
+                </div>
+            <br/>
+
+        </fieldset>
+
+        <br/>
+    </fieldset>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+</form>
+
+<script>
+    jQuery(function($) {
+        $('#admin_port').change(function(){
+            let link = $('#web_ui_link');
+            console.log(link.attr("href"));
+            let href = new URL(link.attr("href"));
+            newlink = href.protocol + "//" + href.hostname + ":" + $(this).val();
+            link.attr("href", newlink);
+            link.text(newlink);
+            //no top link
+        });
+        let workStatusCb = function(succ) {
+          if (succ) {
+              $('#web_ui_link').show();
+          } else {
+              $('#web_ui_link').hide();
+          }
+        };
+        $('#hacklog-form').submit(function() {
+            $(this).ajaxSubmit({success:function(resp) {
+                    console.log(resp);
+                    msg_type = resp.error !== 0 ? 'error' : 'success';
+                    alertify.notify(resp.message, msg_type, 2, function(){ processCheck('frpc', '#frpc-status'); statusCheck('/appcfg/frp/status', '#frpc-working-status', workStatusCb); });
+                }
+            });
+            return false;
+        });
+        processCheck('frpc', '#frpc-status');
+        statusCheck('/appcfg/frp/status', '#frpc-working-status', workStatusCb);
+    })
+</script>
+{{template "common/footer"}}
+{{ end }}

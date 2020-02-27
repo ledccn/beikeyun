@@ -1,0 +1,80 @@
+{{ define "status/banned" }}
+{{template "common/header" }}
+
+<!-- jquery.dataTables style -->
+<link rel="stylesheet" href="/static/js/datatables/datatables.css" />
+<script src="/static/js/datatables/datatables.min.js"></script>
+
+
+<script>
+    var luciLocation = ["admin","status","banned"];
+</script>
+<style>
+    .banned {
+        color: #f16348;
+    }
+</style>
+
+    <div class="cbi-map" id="cbi-system" style="max-width: 1024px;">
+        <h2 name="content">登录失败日志</h2>
+        <div class="cbi-map-descr">客户端登录失败次数 > 5，将被禁止1小时。
+        </div>
+        <fieldset class="cbi-section" id="cbi-system-system">
+            <legend>登录失败的客户端</legend>
+
+            <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+                <div class="cbi-tabcontainer">
+
+                    <table id="banned-client-table" class="display cell-border" style="width:100%;">
+                        <thead>
+                        <tr>
+                            <th>IP</th>
+                            <th>失败次数</th>
+                            <th>禁止时间</th>
+                            <th>地区</th>
+                            <th>行政区</th>
+                            <th>城市</th>
+                        </tr>
+                        </thead>
+                    </table>
+
+                </div>
+
+            <br/>
+
+        </fieldset>
+        <br/>
+    </fieldset>
+    <div class="cbi-page-actions">
+        <!--
+        <input class="cbi-button cbi-button-save" type="submit" value="Save"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="Reset"/>
+        -->
+    </div>
+
+<script>
+    $(document).ready(function() {
+        var table = $('#banned-client-table').DataTable( {
+            "paging":   false,
+            "ajax": "/api/get-banned-clients",
+            "columns": [
+                { "data": "IP" },
+                { "data": "FailedAttemptsCount" },
+                { "data": "BannedAt" },
+                { "data": "CountryName" },
+                { "data": "RegionName" },
+                { "data": "CityName" }
+            ],
+            "createdRow": function ( row, data, index ) {
+                console.log(data.BannedAt);
+                if ( data.BannedAt != "-") {
+                    $(row).addClass('banned');
+                }
+            }
+        });
+    });
+</script>
+
+{{template "common/footer"}}
+{{ end }}

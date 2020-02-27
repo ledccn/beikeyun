@@ -1,0 +1,201 @@
+{{ define "appcfg/dashboard" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin","appcfg","dashboard"];
+</script>
+
+<form id="dashboard-form" method="post" name="cbi" action="/appcfg/dashboard" enctype="multipart/form-data">
+    <div>
+        <input type="hidden" name="token" value="270ecd947ed9c903589480de00ff97c4"/>
+        <input type="hidden" name="cbi.submit" value="1"/>
+        <input type="submit" value="Save" class="hidden"/>
+        <input type="hidden" name="sys.dashboard.http_addr" value="">
+        <input type="hidden" name="sys.dashboard.https_addr" value="">
+    </div>
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">Dashboard配置</h2>
+        <div class="cbi-map-descr">在这里您可以配置Dashboard的各项参数。
+        </div>
+
+        <div id="message" class="alert alert-success" style="display: none;margin: 10px  0;padding: 15px;">
+            设置成功！
+        </div>
+
+        <fieldset class="cbi-section" id="cbi-system-system">
+            <legend>WEB参数</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab">
+                    <a>常规设置</a>
+                    <input type="hidden" id="tab.system.general" name="tab.system.general" value="general"/>
+                </li>
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab-disabled">
+                    <a href="/appcfg/dashboard-cert">SSL证书设置</a>
+                    <input type="hidden" id="tab.system.ssl" name="tab.system.ssl" value="ssl"/>
+                </li>
+                <li id="tab.system.cfg02e48a.log" class="cbi-tab-disabled">
+                    <a href="/appcfg/dashboard-log">日志</a>
+                </li>
+            </ul>
+
+
+            <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+                <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="sys.dashboard.domain">主机名或固定IP</label>
+                        <div class="cbi-value-field">
+                            <input  id="sys.dashboard.domain" name="sys.dashboard.domain" type="text"
+                                   class="cbi-input-text" value="{{ SysCfg "sys.dashboard.domain" "" }}" data-optional="false"/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="sys.dashboard.http_port">Http监听端口</label>
+                        <div class="cbi-value-field">
+                            <!-- udp dht listen port -->
+                            <input  id="sys.dashboard.http_port" name="sys.dashboard.http_port" type="text"
+                                   class="cbi-input-text" value="{{ SysCfg "sys.dashboard.http_port" "80" }}" data-optional="false"/>
+                            默认 80
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="sys.dashboard.https_port">Https监听端口</label>
+                        <div class="cbi-value-field">
+                            <input  id="sys.dashboard.https_port" name="sys.dashboard.https_port" type="text"
+                                   class="cbi-input-text" value="{{ SysCfg "sys.dashboard.https_port" "443" }}" data-optional="false"/>
+                            默认 443
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="sys.dashboard.quick_open_api_key">统一登录API值</label>
+                        <div class="cbi-value-field">
+                            <input  id="sys.dashboard.quick_open_api_key" name="sys.dashboard.quick_open_api_key" type="text"
+                                    class="cbi-input-text" value="{{ SysCfg "sys.dashboard.quick_open_api_key" "" }}" data-optional="false"/>
+                        </div>
+                    </div>
+
+                </div>
+
+            </fieldset>
+            <br/>
+
+
+        </fieldset>
+        <fieldset class="cbi-section">
+            <legend>扩展配置</legend>
+
+            <fieldset class="cbi-section-node" id="cbi-system-ntp">
+
+                <div class="cbi-value cbi-value-last" data-index="3" data-depends="[]">
+                    <label class="cbi-value-title" for="rpc-secure">UPnP</label>
+                    <div class="cbi-value-field">
+                        <select class="cbi-input-select"  id="sys.dashboard.upnp_enable" name="sys.dashboard.upnp_enable" size="1">
+                        {{ $x := SysCfg "sys.dashboard.upnp_enable" "false" }}
+                            <option {{ EqOutput "false" $x " selected " | attr }} value="false">关闭</option>
+                            <option {{ EqOutput "true" $x " selected " | attr }} value="true">打开</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="sys.dashboard.http_upnp_port">Http外部端口(UPnP)</label>
+                    <div class="cbi-value-field">
+                        <!-- udp dht listen port -->
+                        <input  id="sys.dashboard.http_upnp_port" name="sys.dashboard.http_upnp_port" type="text"
+                               class="cbi-input-text" value="{{ SysCfg "sys.dashboard.http_upnp_port" "8084" }}" data-optional="false"/>
+                        默认 8084
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="sys.dashboard.https_upnp_port">Https外部端口(UPnP)</label>
+                    <div class="cbi-value-field">
+                        <input  id="sys.dashboard.https_upnp_port" name="sys.dashboard.https_upnp_port" type="text"
+                               class="cbi-input-text" value="{{ SysCfg "sys.dashboard.https_upnp_port" "8444" }}" data-optional="false"/>
+                        默认 8444
+                    </div>
+                </div>
+
+            </fieldset>
+            <br/>
+
+        </fieldset>
+
+
+        <br/>
+    </div>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+</form>
+
+<script>
+    var isFadein = false;
+    var checkRestartStatus = function () {
+        var httpPort = jQuery('input[name="sys.dashboard.http_port"]').val();
+        var httpsPort = jQuery('input[name="sys.dashboard.https_port"]').val();
+        var newPort = location.protocol == "http:" ? httpPort : httpsPort;
+        var newUrl = location.protocol + "//" + location.hostname + ":" + newPort;
+
+        if (!isFadein) {
+            $(".main > .loading").fadeIn("fast");
+        }
+        //https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch
+        var external = newUrl +"/api/login-status";
+        if (window.fetch) {
+            // must be chrome or firefox which have native fetch
+            fetch(external, {'mode':'no-cors'})
+                    .then(function (r) {
+                        // external is reachable; but failed due to cors
+                        // fetch will pass though if it's a cors error
+                        console.log('ok');
+                        console.log(r);
+                        location.href = newUrl + location.pathname;
+                    })
+                    .catch(function () {
+                        console.log('external is _not_ reachable');
+                        setTimeout('checkRestartStatus()', 1000);
+                    });
+        } else {
+            // must be non-updated safari or older IE...
+            // I don't know how to find error type in this case
+            alertify.alert("您的浏览器不支持统一登录API，请手动访问页面。");
+        }
+    };
+    // wait for the DOM to be loaded
+    $(function() {
+        var options = {
+            // beforeSubmit:  showRequest,  // pre-submit callback
+            success:       showResponse, // post-submit callback
+            error: checkRestartStatus,
+            // other available options:
+            //url:       url         // override for form's 'action' attribute
+            //type:      type        // 'get' or 'post', override for form's 'method' attribute
+            dataType:  'json',        // 'xml', 'script', or 'json' (expected server response type)
+            //clearForm: true        // clear all form fields after successful submit
+            //resetForm: true        // reset the form after successful submit
+
+            // $.ajax options can be used here too, for example:
+            timeout:   3000
+        };
+        $('#dashboard-form').submit(function() {
+            $(this).ajaxSubmit(options);
+            return false;
+        });
+        function showResponse(resp, statusText, xhr, $form)  {
+            console.log(resp,statusText, xhr);
+            msg_type = resp.error !== 0 ? 'error' : 'success';
+            alertify.notify(resp.message, msg_type, 6, function(){});
+        }
+    });
+</script>
+
+{{template "common/footer"}}
+{{ end }}

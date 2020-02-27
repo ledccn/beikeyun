@@ -1,0 +1,167 @@
+{{ define "appcfg/smb" }}
+{{template "common/header" }}
+
+
+<script>
+    var luciLocation = ["admin","appcfg","smb"];
+</script>
+
+<form id="hacklog-form" method="post" name="cbi" action="/appcfg/smb" enctype="multipart/form-data">
+    <div>
+        <input type="hidden" name="token" value="270ecd947ed9c903589480de00ff97c4"/>
+        <input type="hidden" name="cbi.submit" value="1"/>
+        <input type="submit" value="Save" class="hidden"/>
+    </div>
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">Samba配置</h2>
+        <div class="cbi-map-descr">在这里，配置samba访问
+        </div>
+        <fieldset class="cbi-section" id="cbi-system-system">
+            <legend>Samba</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab">
+                    <a href="/appcfg/smb">全局设置</a>
+                </li>
+                <li id="tab.system.cfg02e48a.users" class="cbi-tab-disabled">
+                    <a href="/appcfg/smb-share">共享目录</a>
+                </li>
+                <li id="tab.system.cfg02e48a.users" class="cbi-tab-disabled">
+                    <a href="/appcfg/smb-users">用户</a>
+                </li>
+                <li id="tab.system.cfg02e48a.log" class="cbi-tab-disabled">
+                    <a href="/appcfg/smb-log">日志</a>
+                </li>
+            </ul>
+
+
+            <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+                <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">运行状态</label>
+                        <div class="cbi-value-field">
+                            <input id="nmbd-process-status" class="cbi-button cbi-input-save" type="button" value="nmbd Running">
+                            <input id="smbd-process-status" class="cbi-button cbi-input-save" type="button" value="smbd Running">
+                        </div>
+                    </div>
+
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="workgroup">工作组</label>
+                        <div class="cbi-value-field">
+                            <input  id="workgroup" name="global.workgroup" type="text"
+                                   class="cbi-input-text" value="{{ .smbcfg.SMBIniSecGlobal.Workgroup }}" data-type="string" data-optional="false"/>
+                            默认 WORKGROUP
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="netbios name">Netbios名称</label>
+                        <div class="cbi-value-field">
+                            <input  id="netbios name" name="global.netbios name" type="text"
+                                   class="cbi-input-text" value="{{ .smbcfg.SMBIniSecGlobal.NetbiosName }}" data-type="string" data-optional="false"/>
+                            默认 phicomm-n1
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="server string">描述</label>
+                        <div class="cbi-value-field">
+                            <input  id="server string" name="global.server string" type="text"
+                                   class="cbi-input-text" value="{{ .smbcfg.SMBIniSecGlobal.ServerString }}" data-type="string" data-optional="false"/>
+                            默认 phicomm-n1
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="log level">网络接口</label>
+                        <div class="cbi-value-field">
+                            <input  id="log level" name="global.interfaces" type="text"
+                                   class="cbi-input-text" value="{{ .smbcfg.SMBIniSecGlobal.Interfaces }}" data-type="string" data-optional="false"/>
+                            默认 <span class="label">eth0 wlan0</span>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="log level">本地域服务器</label>
+                        <div class="cbi-value-field">
+                            <input  id="log level" name="global.local master" type="text"
+                                   class="cbi-input-text" value="{{ .smbcfg.SMBIniSecGlobal.LocalMaster }}" data-type="string" data-optional="false"/>
+                            默认 no
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="log level">日志级别</label>
+                        <div class="cbi-value-field">
+                            <input  id="log level" name="global.log level" type="text"
+                                   class="cbi-input-text" value="{{ .smbcfg.SMBIniSecGlobal.LogLevel }}" data-type="string" data-optional="false"/>
+                            数字(0-10), 0 表示无, 3 相当。默认 0
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="log level">日志大小</label>
+                        <div class="cbi-value-field">
+                            <input  id="log level" name="global.max log size" type="text"
+                                   class="cbi-input-text" value="{{ .smbcfg.SMBIniSecGlobal.MaxLogSize }}" data-type="string" data-optional="false"/>
+                            默认值为5（单位KB）。日志超过此大小后，文件将重命名为.bak并建立新的日志文件。
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="log level">编码</label>
+                        <div class="cbi-value-field">
+                            <input  id="log level" name="global.dos charset" type="text"
+                                    class="cbi-input-text" value="{{ .smbcfg.SMBIniSecGlobal.DosCharset }}" data-type="string" data-optional="false"/>
+                            默认 CP936
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="log level">NTLM身份验证</label>
+                        <div class="cbi-value-field">
+                            <input  id="log level" name="global.ntlm auth" type="text"
+                                    class="cbi-input-text" value="{{ .smbcfg.SMBIniSecGlobal.NtlmAuth }}" data-type="string" data-optional="false"/>
+                            部分Android设备需要启用
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+            <br/>
+
+
+        </fieldset>
+
+        <br/>
+    </div>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+</form>
+
+
+<script>
+    jQuery(function($) {
+        let smbProcessCheck = function() {
+            processCheck('nmbd', '#nmbd-process-status');
+            processCheck('smbd', '#smbd-process-status');
+        };
+        $('#hacklog-form').submit(function() {
+            $(this).ajaxSubmit({success:function(resp) {
+                    console.log(resp);
+                    msg_type = resp.error !== 0 ? 'error' : 'success';
+                    alertify.notify(resp.message, msg_type, 2, function(){smbProcessCheck();});
+                }
+            });
+            return false;
+        });
+        smbProcessCheck();
+    })
+</script>
+{{template "common/footer"}}
+{{ end }}

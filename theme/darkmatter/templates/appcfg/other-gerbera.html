@@ -1,0 +1,172 @@
+{{ define "appcfg/other-gerbera" }}
+{{template "common/header" }}
+
+
+<script>
+    var luciLocation = ["admin","appcfg","other"];
+</script>
+
+<!-- typeahead style -->
+<link rel="stylesheet" href="/static/css/typeahead.css" />
+<script src="/static/js/typeahead/typeahead.jquery.min.js"></script>
+
+<form id="hacklog-form" method="post" name="cbi" action="/appcfg/other-gerbera" enctype="multipart/form-data">
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">other其他配置</h2>
+        <div class="cbi-map-descr">Gerbera is an UPnP Media Server.</div>
+        <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section" id="cbi-system-system">
+            <legend>Gerbera</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.ftp" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-ftp">FTP</a>
+                </li>
+                <li id="tab.system.cfg02e48a.fm" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-fm">Filemanager</a>
+                </li>
+                <li id="tab.system.cfg02e48a.sync" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-sync">Syncthing</a>
+                </li>
+                <li id="tab.system.cfg02e48a.sync" class="cbi-tab">
+                    <a href="/appcfg/other-gerbera">Gerbera</a>
+                </li>
+                <li id="tab.system.cfg02e48a.jellyfin" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-jellyfin">Jellyfin</a>
+                </li>
+                <li id="tab.system.cfg02e48a.docker" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-docker">Docker</a>
+                </li>
+            </ul>
+
+            <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+                <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">运行状态</label>
+                        <div class="cbi-value-field">
+                            <input class="process-status cbi-button cbi-input-save" type="button" value="Running" >
+                            <a id="web_ui_link" target="_blank" class="cbi-button cbi-input-save quick-open" href="http://{{ GetHostname | attr }}:{{ SysCfg "app.gerbera.http_port" "49152" }}/index.html#">Web UI</a>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="home">配置文件</label>
+                        <div class="cbi-value-field">
+                            <input id="config" name="config" type="text" maxlength="128" readonly disabled
+                                   class="cbi-input-text" value="{{ .config_file }}" />
+                            默认 /var/lib/gerbera/config.xml
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="home">用户目录</label>
+                        <div class="cbi-value-field">
+                            <input id="home" name="home" type="text" maxlength="128" readonly disabled
+                                   class="cbi-input-text" value="{{ .home }}" />
+                            默认 /var/lib/gerbera
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="http_port">监听端口</label>
+                        <div class="cbi-value-field">
+                            <input id="http_port" name="http_port" type="text" maxlength="5"
+                                   class="cbi-input-text" value="{{ SysCfg "app.gerbera.http_port" "49152" }}" />
+                            绑定的端口, 必须>=49152, 默认 49152
+                        </div>
+                    </div>
+
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="user">用户名</label>
+                        <div class="cbi-value-field">
+                            <input id="user" name="user" type="text" maxlength="32"
+                                   class="cbi-input-text" value="{{ .user }}" autocomplete="new-user"/>
+                            默认 root
+                        </div>
+                    </div>
+
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="password">密码</label>
+                        <div class="cbi-value-field">
+                            <input id="password" name="password" type="password" maxlength="32"
+                                   class="cbi-input-text" value="{{ .password }}" autocomplete="new-password"/>
+                            <img src="/static/img/eye.png" style="vertical-align:middle;cursor: pointer;"
+                                 title="Reveal/hide password"
+                                 onclick="var e = document.getElementById('password'); e.type = (e.type=='password') ? 'text' : 'password';"/>
+                            默认 root
+                        </div>
+                    </div>
+
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="name">服务名称</label>
+                        <div class="cbi-value-field">
+                            <input id="name" name="name" type="text" maxlength="32"
+                                   class="cbi-input-text" value="{{ .name }}" />
+                            默认 N1-DLNA
+                        </div>
+                    </div>
+
+                </div>
+            <br/>
+        </fieldset>
+        </fieldset>
+    </div>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+
+</form>
+
+<script>
+    jQuery(function($) {
+        $('.typeahead').typeahead({
+                    minLength: 1,
+                    highlight: true,
+                    hint: true,
+                    offset: true
+                },
+                {
+                    name: 'path',
+                    display: 'value',
+                    async: true,
+                    limit: 20,
+                    source: function (query, process, asyncResults) {
+                        return $.get('/api/system/browse', {current: query}, function (data) {
+                            var matches = [];
+                            $.each(data.list, function (i, str) {
+                                matches.push({value: str});
+                            });
+                            // process(matches);
+                            asyncResults(matches);
+                            console.log(matches);
+                        }, 'json');
+                    },
+                });
+        $('#http_port').blur(function(){
+            let link = $('#web_ui_link');
+            let href = new URL(link.attr("href"));
+            newlink = "http://" + href.hostname + ":" + $(this).val();
+            link.attr("href", newlink);
+            //top link
+            let top_link = $('#gbr_web_link');
+            top_link.attr("href", newlink);
+        });
+        $('#hacklog-form').submit(function() {
+            $(this).ajaxSubmit({success:function(resp) {
+                    console.log(resp);
+                    msg_type = resp.error !== 0 ? 'error' : 'success';
+                    alertify.notify(resp.message, msg_type, 2, function(){processCheck('gerbera', '.process-status');});
+                }
+            });
+            return false;
+        });
+        processCheck('gerbera', '.process-status');
+    });
+</script>
+
+{{template "common/footer"}}
+{{ end }}

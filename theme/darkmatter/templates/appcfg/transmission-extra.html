@@ -1,0 +1,339 @@
+{{ define "appcfg/transmission-extra" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin","appcfg","transmission"];
+</script>
+
+<!-- typeahead style -->
+<link rel="stylesheet" href="/static/css/typeahead.css" />
+<script src="/static/js/typeahead/typeahead.jquery.min.js"></script>
+
+<form id="hacklog-form" method="post" name="cbi" action="/appcfg/transmission" enctype="multipart/form-data">
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">Transmission配置</h2>
+        <div class="cbi-map-descr">在这里，配置您的Transmission
+        </div>
+        <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section" id="cbi-system-system">
+            <legend>Transmission</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab-disabled"><a href="/appcfg/transmission">常规设置</a></li>
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab"><a href="/appcfg/transmission-extra">高级设置</a></li>
+            </ul>
+
+            <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section-node cbi-section-node-tabbed">
+
+                <div class="cbi-tabcontainer">
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="download-queue-enabled">启用下载队列</label>
+                        <div class="cbi-value-field">
+                            <select class="cbi-input-select"  id="download-queue-enabled" name="download-queue-enabled" size="1">
+                            {{ $dqe := index .trcfg "download-queue-enabled"}}
+                                <option {{ EqOutput false $dqe " selected " | attr}} value="false">关闭</option>
+                                <option {{ EqOutput true $dqe " selected " | attr}} value="true">开启</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="download-queue-size">最大同时下载数</label>
+                        <div class="cbi-value-field">
+                            <input  id="download-queue-size" name="download-queue-size" type="text"
+                                    class="cbi-input-text" value="{{index .trcfg "download-queue-size"}}"/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="seed-queue-enabled">启用上传队列</label>
+                        <div class="cbi-value-field">
+                            <select class="cbi-input-select"  id="seed-queue-enabled" name="seed-queue-enabled" size="1">
+                            {{ $sqe := index .trcfg "seed-queue-enabled"}}
+                                <option {{ EqOutput false $sqe " selected " | attr}} value="false">关闭</option>
+                                <option {{ EqOutput true $sqe " selected " | attr}} value="true">开启</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="seed-queue-size">最大同时上传数</label>
+                        <div class="cbi-value-field">
+                            <input id="seed-queue-size" name="seed-queue-size" type="text"
+                                   class="cbi-input-text" value="{{index .trcfg "seed-queue-size"}}"/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="cache-size-mb">缓存大小</label>
+                        <div class="cbi-value-field">
+                            <input id="cache-size-mb" name="cache-size-mb" type="text"
+                                   class="cbi-input-text" value="{{index .trcfg "cache-size-mb"}}"/> MB 例:磁盘写入速度A、下载速度B。缓存大小=A×A/B
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="speed-limit-down-enabled">启用最大下载速度限制</label>
+                        <div class="cbi-value-field">
+                            <select class="cbi-input-select"  id="speed-limit-down-enabled" name="speed-limit-down-enabled" size="1">
+							{{ $slde := index .trcfg "speed-limit-down-enabled"}}
+                                <option {{ EqOutput false $slde " selected " | attr}} value="false">关闭</option>
+                                <option {{ EqOutput true $slde " selected " | attr}} value="true">开启</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="speed-limit-down">最大下载速度</label>
+                        <div class="cbi-value-field">
+                            <input id="speed-limit-down" name="speed-limit-down" type="text"
+                                   class="cbi-input-text" value="{{index .trcfg "speed-limit-down"}}"/>KB/s
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="speed-limit-up-enabled">启用最大上传速度限制</label>
+                        <div class="cbi-value-field">
+                            <select class="cbi-input-select"  id="speed-limit-up-enabled" name="speed-limit-up-enabled" size="1">
+							{{ $slue := index .trcfg "speed-limit-up-enabled"}}
+                                <option {{ EqOutput false $slue " selected " | attr}} value="false">关闭</option>
+                                <option {{ EqOutput true $slue " selected " | attr}} value="true">开启</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="speed-limit-up">最大上传速度</label>
+                        <div class="cbi-value-field">
+                            <input id="speed-limit-up" name="speed-limit-up" type="text"
+                                   class="cbi-input-text" value="{{index .trcfg "speed-limit-up"}}"/>KB/s
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="upload-slots-per-torrent">每个种子上传连接数</label>
+                        <div class="cbi-value-field">
+                            <input id="upload-slots-per-torrent" name="upload-slots-per-torrent" type="text"
+                                   class="cbi-input-text" value="{{index .trcfg "upload-slots-per-torrent"}}"/>
+                        </div>
+                    </div>
+
+
+                </div>
+            </fieldset>
+            <br/>
+
+
+        </fieldset>
+        <fieldset class="cbi-section">
+            <legend>额外设置</legend>
+
+            <fieldset class="cbi-section-node" id="cbi-system-ntp">
+
+                <div class="cbi-tabcontainer">
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="rpc-host-whitelist-enabled">启用RPC主机白名单</label>
+                        <div class="cbi-value-field">
+                            <select class="cbi-input-select"  id="rpc-host-whitelist-enabled" name="rpc-host-whitelist-enabled" size="1">
+                                {{ $x := index .trcfg "rpc-host-whitelist-enabled"}}
+                                <option {{ EqOutput false $x " selected " | attr}} value="false">关闭</option>
+                                <option {{ EqOutput true $x " selected " | attr}} value="true">开启</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="rpc-host-whitelist">RPC主机白名单</label>
+                        <div class="cbi-value-field">
+                            <input autocomplete="off"  id="rpc-host-whitelist" name="rpc-host-whitelist" type="text"
+                                   class="cbi-input-text" value="{{index .trcfg "rpc-host-whitelist"}}"/>
+                            <p>
+                                以英文半角逗号分隔域名列表，允许使用*通配符。例如: "*.foo.org,example.com"<br />
+                                默认值: 空, 始终允许: "localhost", "localhost.", 所有IP。
+                            </p>
+                        </div>
+                    </div>
+
+
+                    <div class="cbi-value">
+                    <label class="cbi-value-title" for="rpc-whitelist-enabled">启用RPC访问白名单</label>
+                    <div class="cbi-value-field">
+                        <select class="cbi-input-select"  id="rpc-whitelist-enabled" name="rpc-whitelist-enabled" size="1">
+						{{ $y := index .trcfg "rpc-whitelist-enabled"}}
+                            <option {{ EqOutput false $y " selected " | attr}} value="false">关闭</option>
+                            <option {{ EqOutput true $y " selected " | attr}} value="true">开启</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="rpc-whitelist">RPC访问白名单</label>
+                    <div class="cbi-value-field">
+                        <input autocomplete="off"  id="rpc-whitelist" name="rpc-whitelist" type="text"
+                               class="cbi-input-text" value="{{index .trcfg "rpc-whitelist"}}"/>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="blocklist-enabled">启用黑名单</label>
+                    <div class="cbi-value-field">
+                        <select class="cbi-input-select"  id="blocklist-enabled" name="blocklist-enabled" size="1">
+						{{ $z := index .trcfg "blocklist-enabled"}}
+                            <option {{ EqOutput false $z " selected " | attr}} value="false">关闭</option>
+                            <option {{ EqOutput true $z " selected " | attr}} value="true">开启</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="blocklist-url">黑名单URL</label>
+                    <div class="cbi-value-field">
+                        <input  id="blocklist-url" name="blocklist-url" type="text"
+                                class="cbi-input-text" value="{{index .trcfg "blocklist-url"}}"/>
+                        <select name="blocklist-item-suggest" id="blocklist-item-suggest">
+                            <option value="">==建议列表==</option>
+                            <!-- https://www.iblocklist.com/lists?category=general -->
+                            <!-- https://gist.github.com/johntyree/3331662 -->
+                            <option value="http://john.bitsurge.net/public/biglist.p2p.gz">john biglist.p2p.gz</option>
+                            <option value="http://list.iblocklist.com/?list=bt_level1&fileformat=p2p&archiveformat=gz">iblocklist bt_level1</option>
+                            <!-- http://www.peerblocklist.com -->
+                            <option value="http://www.peerblocklist.com/pb-malicious.p2p">pb-malicious.p2p</option>
+                            <option value="http://www.peerblocklist.com/pb-bogons.p2p">pb-bogons.p2p</option>
+                            <option value="http://www.peerblocklist.com/pb-tornodes.p2p">pb-tornodes.p2p</option>
+                            <option value="http://www.peerblocklist.com/pb-phishtank.p2p">pb-phishtank.p2p</option>
+                            <option value="http://www.peerblocklist.com/pb-coppers.p2p">pb-coppers.p2p</option>
+                            <option value="http://www.peerblocklist.com/pb-snitches.p2p">pb-snitches.p2p</option>
+
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="dht-enabled">启用分布式哈希表 DHT</label>
+                    <div class="cbi-value-field">
+                        <select class="cbi-input-select"  id="dht-enabled" name="dht-enabled" size="1">
+						{{ $de := index .trcfg "dht-enabled"}}
+                            <option {{ EqOutput false $de " selected " | attr}} value="false">关闭</option>
+                            <option {{ EqOutput true $de " selected " | attr}} value="true">开启</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="lpd-enabled">启用本地用户发现 LPD</label>
+                    <div class="cbi-value-field">
+                        <select class="cbi-input-select"  id="lpd-enabled" name="lpd-enabled" size="1">
+						{{ $le := index .trcfg "lpd-enabled"}}
+                            <option {{ EqOutput false $le " selected " | attr}} value="false">关闭</option>
+                            <option {{ EqOutput true $le " selected " | attr}} value="true">开启</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="pex-enabled">启用用户交换 PEX</label>
+                    <div class="cbi-value-field">
+                        <select class="cbi-input-select"  id="pex-enabled" name="pex-enabled" size="1">
+						{{ $pe := index .trcfg "pex-enabled"}}
+                            <option {{ EqOutput false $pe " selected " | attr}} value="false">关闭</option>
+                            <option {{ EqOutput true $pe " selected " | attr}} value="true">开启</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="port-forwarding-enabled">启用端口转发 uPnP</label>
+                    <div class="cbi-value-field">
+                        <select class="cbi-input-select"  id="port-forwarding-enabled" name="port-forwarding-enabled" size="1">
+						{{ $pfe := index .trcfg "port-forwarding-enabled"}}
+                            <option {{ EqOutput false $pfe " selected " | attr}} value="false">关闭</option>
+                            <option {{ EqOutput true $pfe " selected " | attr}} value="true">开启</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="utp-enabled">启用UDP传输</label>
+                    <div class="cbi-value-field">
+                        <select class="cbi-input-select"  id="utp-enabled" name="utp-enabled" size="1">
+						{{ $utpe := index .trcfg "utp-enabled"}}
+                            <option {{ EqOutput false $utpe " selected " | attr}} value="false">关闭</option>
+                            <option {{ EqOutput true $utpe " selected " | attr}} value="true">开启</option>
+                        </select>
+                    </div>
+                </div>
+                </div>
+            </fieldset>
+            <br/>
+
+        </fieldset>
+
+
+        <br/>
+    </div>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+</form>
+
+<script>
+    jQuery(function($) {
+        $('#rpc-port').change(function(){
+            let link = $('#web_ui_link');
+            console.log(link.attr("href"));
+            let href = new URL(link.attr("href"));
+            newlink = href.protocol + "//" + href.hostname + ":" + $(this).val();
+            link.attr("href", newlink);
+            link.text(newlink);
+            //top link
+            let top_link = $('#tr_web_link');
+            top_link.attr("href", newlink);
+        });
+
+        $('#blocklist-item-suggest').change(function () {
+            $('#blocklist-url').val($(this).val());
+            return false;
+        });
+
+        $('.typeahead').typeahead({
+                    minLength: 1,
+                    highlight: true,
+                    hint: true,
+                    offset: true
+                },
+                {
+                    name: 'path',
+                    display: 'value',
+                    async:true,
+                    limit:20,
+                    source: function (query, process, asyncResults) {
+                        return $.get('/api/system/browse', { current: query }, function (data) {
+                            var matches = [];
+                            $.each(data.list, function(i, str) {
+                                matches.push({ value: str });
+                            });
+                            // process(matches);
+                            asyncResults(matches);
+                            console.log(matches);
+                        },'json');
+                    },
+                });
+
+        $('#hacklog-form').submit(function() {
+            $(this).ajaxSubmit({success:function(resp) {
+                    console.log(resp);
+                    msg_type = resp.error !== 0 ? 'error' : 'success';
+                    alertify.notify(resp.message, msg_type, 6, function(){});
+                }
+            });
+            return false;
+        });
+        processCheck('transmission-daemon', '#transmission-daemon-status');
+    });
+
+</script>
+
+{{template "common/footer"}}
+{{ end }}

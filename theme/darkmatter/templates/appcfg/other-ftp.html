@@ -1,0 +1,265 @@
+{{ define "appcfg/other-ftp" }}
+{{template "common/header" }}
+
+
+<script>
+    var luciLocation = ["admin","appcfg","other"];
+</script>
+
+<!-- typeahead style -->
+<link rel="stylesheet" href="/static/css/typeahead.css" />
+<script src="/static/js/typeahead/typeahead.jquery.min.js"></script>
+
+<form id="hacklog-form" method="post" name="cbi" action="/appcfg/other-ftp" enctype="multipart/form-data">
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">other其他配置</h2>
+        <div class="cbi-map-descr">在这里，配置FTP、Filemanager、Sync、Gerbera、Jellyfin、Docker</div>
+        <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section" id="cbi-system-system">
+            <legend>FTP服务</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.ftp" class="cbi-tab">
+                    <a href="/appcfg/other-ftp">FTP</a>
+                </li>
+                <li id="tab.system.cfg02e48a.fm" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-fm">Filemanager</a>
+                </li>
+                <li id="tab.system.cfg02e48a.sync" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-sync">Syncthing</a>
+                </li>
+                <li id="tab.system.cfg02e48a.sync" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-gerbera">Gerbera</a>
+                </li>
+                <li id="tab.system.cfg02e48a.jellyfin" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-jellyfin">Jellyfin</a>
+                </li>
+                <li id="tab.system.cfg02e48a.docker" class="cbi-tab-disabled">
+                    <a href="/appcfg/other-docker">Docker</a>
+                </li>
+            </ul>
+
+            <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+                <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">运行状态</label>
+                        <div class="cbi-value-field">
+                            <input class="process-status cbi-button cbi-input-save" type="button" value="Running" >
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="listen_port">监听端口</label>
+                        <div class="cbi-value-field">
+                            <input id="listen_port" name="listen_port" type="text"
+                                   class="cbi-input-text" value="{{ .ftpcfg.ListenPort }}" />
+                            默认 21
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="ftp_data_port">数据传输端口</label>
+                        <div class="cbi-value-field">
+                            <input id="ftp_data_port" name="ftp_data_port" type="text"
+                                   class="cbi-input-text" value="{{ .ftpcfg.FtpDataPort }}" />
+                            默认 20
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="local_root">根路径</label>
+                        <div class="cbi-value-field">
+                            <input id="local_root" name="local_root" type="text"
+                                   class="cbi-input-text typeahead" value="{{ .ftpcfg.LocalRoot }}" />
+                            默认 /media
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="ftpd_banner">欢迎语</label>
+                        <div class="cbi-value-field">
+                            <input id="ftpd_banner" name="ftpd_banner" type="text"
+                                   class="cbi-input-text" value="{{ .ftpcfg.FtpdBanner }}" />
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="pasv_promiscuous">关闭PASV模式安全检查</label>
+                        <div class="cbi-value-field">
+                            <select class="cbi-input-select"  id="pasv_promiscuous" name="pasv_promiscuous" size="1">
+                                <option {{ EqOutput "YES" .ftpcfg.PasvPromiscuous " selected " | attr}} value="YES">YES</option>
+                                <option {{ EqOutput "NO" .ftpcfg.PasvPromiscuous " selected " | attr}} value="NO">NO</option>
+                            </select>
+                            默认 YES
+                        </div>
+                    </div>
+            <br/>
+        </fieldset>
+
+        <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section-node cbi-section-node-tabbed">
+            <legend>连接配置</legend>
+
+            <div class="cbi-value">
+                <label class="cbi-value-title" for="pasv_min_port">被动端口范围下限</label>
+                <div class="cbi-value-field">
+                    <input id="pasv_min_port" name="pasv_min_port" type="text"
+                           class="cbi-input-text" value="{{ .ftpcfg.PasvMinPort }}" />
+                    默认 50000
+                </div>
+            </div>
+
+            <div class="cbi-value">
+                <label class="cbi-value-title" for="pasv_max_port">被动端口范围上限</label>
+                <div class="cbi-value-field">
+                    <input id="pasv_max_port" name="pasv_max_port" type="text"
+                           class="cbi-input-text" value="{{ .ftpcfg.PasvMaxPort }}" />
+                    默认 50100
+                </div>
+            </div>
+
+            <div class="cbi-value">
+                <label class="cbi-value-title" for="max_per_ip">最大IP连接数</label>
+                <div class="cbi-value-field">
+                    <input id="max_per_ip" name="max_per_ip" type="text"
+                           class="cbi-input-text" value="{{ .ftpcfg.MaxPerIP }}" />
+                    默认 10
+                </div>
+            </div>
+
+            <div class="cbi-value">
+                <label class="cbi-value-title" for="max_clients">最大并发数</label>
+                <div class="cbi-value-field">
+                    <input id="max_clients" name="max_clients" type="text"
+                           class="cbi-input-text" value="{{ .ftpcfg.MaxClients }}" />
+                    默认 10
+                </div>
+            </div>
+
+            <div class="cbi-value">
+                <label class="cbi-value-title" for="max_login_fails">登录失败尝试次数</label>
+                <div class="cbi-value-field">
+                    <input id="max_login_fails" name="max_login_fails" type="text"
+                           class="cbi-input-text" value="{{ .ftpcfg.MaxLoginFails }}" />
+                    默认 3
+                </div>
+            </div>
+
+            <div class="cbi-value">
+                <label class="cbi-value-title" for="idle_session_timeout">Session超时</label>
+                <div class="cbi-value-field">
+                    <input id="idle_session_timeout" name="idle_session_timeout" type="text"
+                           class="cbi-input-text" value="{{ .ftpcfg.IdleSessionTimeout }}" />
+                    默认 600
+                </div>
+            </div>
+
+            <div class="cbi-value">
+                <label class="cbi-value-title" for="data_connection_timeout">数据连接失败超时</label>
+                <div class="cbi-value-field">
+                    <input id="data_connection_timeout" name="data_connection_timeout" type="text"
+                           class="cbi-input-text" value="{{ .ftpcfg.DataConnectionTimeout }}" />
+                    默认 120
+                </div>
+            </div>
+        </fieldset>
+
+
+            <fieldset style="overflow-x: visible;overflow-y: visible;" class="cbi-section-node cbi-section-node-tabbed">
+                <legend>SSL配置</legend>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="ssl_enable">启用SSL</label>
+                    <div class="cbi-value-field">
+                        <select class="cbi-input-select"  id="ssl_enable" name="ssl_enable" size="1">
+                            <option {{ EqOutput "YES" .ftpcfg.SslEnable " selected " | attr}} value="YES">YES</option>
+                            <option {{ EqOutput "NO" .ftpcfg.SslEnable " selected " | attr}} value="NO">NO</option>
+                        </select>
+                        默认 YES
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="force_local_logins_ssl">强制登录过程使用SSL</label>
+                    <div class="cbi-value-field">
+                        <select class="cbi-input-select"  id="force_local_logins_ssl" name="force_local_logins_ssl" size="1">
+                            <option {{ EqOutput "YES" .ftpcfg.ForceLocalLoginsSsl " selected " | attr}} value="YES">YES</option>
+                            <option {{ EqOutput "NO" .ftpcfg.ForceLocalLoginsSsl " selected " | attr}} value="NO">NO</option>
+                        </select>
+                        默认 NO
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="force_local_data_ssl">强制传输数据使用SSL</label>
+                    <div class="cbi-value-field">
+                        <select class="cbi-input-select"  id="force_local_data_ssl" name="force_local_data_ssl" size="1">
+                            <option {{ EqOutput "YES" .ftpcfg.ForceLocalDataSsl " selected " | attr}} value="YES">YES</option>
+                            <option {{ EqOutput "NO" .ftpcfg.ForceLocalDataSsl " selected " | attr}} value="NO">NO</option>
+                        </select>
+                        默认 NO
+                    </div>
+                </div>
+
+                <div class="cbi-value">
+                    <label class="cbi-value-title" for="ssl_tlsv1">ssl_tlsv1</label>
+                    <div class="cbi-value-field">
+                        <select class="cbi-input-select"  id="ssl_tlsv1" name="ssl_tlsv1" size="1">
+                            <option {{ EqOutput "YES" .ftpcfg.SslTlsv1 " selected " | attr}} value="YES">YES</option>
+                            <option {{ EqOutput "NO" .ftpcfg.SslTlsv1 " selected " | attr}} value="NO">NO</option>
+                        </select>
+                        默认 YES 允许TLS V1协议连接，并优先使用。
+                    </div>
+                </div>
+
+            </fieldset>
+
+        </fieldset>
+    </div>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+
+</form>
+
+<script>
+    jQuery(function($) {
+        $('.typeahead').typeahead({
+                    minLength: 1,
+                    highlight: true,
+                    hint: true,
+                    offset: true
+                },
+                {
+                    name: 'path',
+                    display: 'value',
+                    async: true,
+                    limit: 20,
+                    source: function (query, process, asyncResults) {
+                        return $.get('/api/system/browse', {current: query}, function (data) {
+                            var matches = [];
+                            $.each(data.list, function (i, str) {
+                                matches.push({value: str});
+                            });
+                            // process(matches);
+                            asyncResults(matches);
+                            console.log(matches);
+                        }, 'json');
+                    },
+                });
+
+        $('#hacklog-form').submit(function() {
+            $(this).ajaxSubmit({success:function(resp) {
+                    console.log(resp);
+                    msg_type = resp.error !== 0 ? 'error' : 'success';
+                    alertify.notify(resp.message, msg_type, 2, function(){processCheck('vsftpd', '.process-status');});
+                }
+            });
+            return false;
+        });
+        processCheck('vsftpd', '.process-status');
+    });
+</script>
+
+{{template "common/footer"}}
+{{ end }}

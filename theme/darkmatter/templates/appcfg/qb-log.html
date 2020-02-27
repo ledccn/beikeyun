@@ -1,0 +1,36 @@
+{{ define "appcfg/qb-log" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin","appcfg","qb"];
+</script>
+
+<div class="cbi-map" id="cbi-system">
+    <h2 name="content">qBittorrent配置</h2>
+    <div class="cbi-map-descr">在这里，查看qBittorrent运行日志。
+    </div>
+    <fieldset class="cbi-section" id="cbi-system-system">
+        <legend>qBittorrent</legend>
+
+        <ul class="cbi-tabmenu">
+            <li id="tab.system.cfg02e48a.general" class="cbi-tab-disabled">
+                <a href="/appcfg/qb">常规设置</a>
+            </li>
+            <li id="tab.system.cfg02e48a.log" class="cbi-tab">
+                <a href="/appcfg/qb-log">日志</a>
+            </li>
+        </ul>
+
+
+        <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+        <div id="content_syslog">
+        <textarea data-autoresize style="font-size: 12px;box-sizing: border-box;resize: none;" readonly="readonly" wrap="off" id="syslog">{{ .Log }}</textarea>
+        </div>
+
+        </fieldset>
+    </fieldset>
+</div>
+
+{{template "common/footer"}}
+{{ end }}

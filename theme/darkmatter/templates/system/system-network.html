@@ -1,0 +1,121 @@
+{{ define "system/network" }}
+{{template "common/header" }}
+
+
+<script>
+    var luciLocation = ["admin","system","system"];
+</script>
+
+<form id="hacklog-form" method="post" name="cbi" action="/admin/system/network" enctype="multipart/form-data">
+    <div>
+        <input type="hidden" name="token" value="270ecd947ed9c903589480de00ff97c4"/>
+        <input type="hidden" name="cbi.submit" value="1"/>
+        <input type="submit" value="Save" class="hidden"/>
+    </div>
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">系统</h2>
+        <div class="cbi-map-descr">在这里，配置您的网卡。
+        </div>
+        <fieldset class="cbi-section" id="cbi-system-system">
+            <legend>网络</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab-disabled"><a href="/admin/system/system">常规</a></li>
+                <li id="tab.system.cfg02e48a.network" class="cbi-tab"><a href="/admin/system/network">网络</a></li>
+            </ul>
+
+
+            <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+                <div class="cbi-tabcontainer">
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="use_static">静态IP</label>
+                        <div class="cbi-value-field">
+                            <select class="cbi-input-select"  id="use_static" name="use_static">
+                                <option {{ EqOutput "yes" .UseStatic " selected " | attr }} value="yes">是 (使用静态IP)</option>
+                                <option {{ EqOutput "no" .UseStatic " selected " | attr }} value="no">否 (使用DHCP)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="use_dhcpv6">启用DHCPv6</label>
+                        <div class="cbi-value-field">
+                            <select class="cbi-input-select"  id="use_dhcpv6" name="use_dhcpv6">
+                            <option {{ EqOutput "yes" .UseDHCPv6 " selected " | attr }} value="yes">是 (启用 DHCPv6)</option>
+                            <option {{ EqOutput "no" .UseDHCPv6 " selected " | attr }} value="no">否 (禁用 DHCPv6)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value hide-if-use-dhcp">
+                        <label class="cbi-value-title" for="ipv4">ipv4</label>
+                        <div class="cbi-value-field">
+                            <input  name="ipv4" type="text" class="cbi-input-text" value="{{ .IPAddr }}"/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value hide-if-use-dhcp">
+                        <label class="cbi-value-title" for="ipv6">ipv6</label>
+                        <div class="cbi-value-field">
+                            <input  name="ipv6" type="text" class="cbi-input-text" value="{{ .IPv6Addr }}"/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value hide-if-use-dhcp">
+                        <label class="cbi-value-title" for="routers">网关</label>
+                        <div class="cbi-value-field">
+                            <input  name="routers" type="text" class="cbi-input-text" value="{{ .Routers }}"/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value  hide-if-use-dhcp cbi-value-last">
+                        <label class="cbi-value-title" for="cbid.system.cfg02e48a.hostname">DNS</label>
+                        <div class="cbi-value-field">
+                            <input  name="dns" type="text" class="cbi-input-text" value="{{ .DNS }}"/>
+                        </div>
+                    </div>
+
+                </div>
+            </fieldset>
+
+            <br/>
+        </fieldset>
+
+
+        <br/>
+    </div>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+</form>
+
+<script>
+    jQuery(function($) {
+        $('#use_static').change(function() {
+            if ($(this).val() == "no") {
+                $('.hide-if-use-dhcp').hide();
+            } else {
+                $('.hide-if-use-dhcp').show();
+            }
+        }).trigger("change");
+        
+        $('#hacklog-form').submit(function() {
+            $(this).ajaxSubmit({success:function(resp) {
+                    console.log(resp);
+                    msg_type = resp.error !== 0 ? 'error' : 'success';
+                    alertify.notify(resp.message, msg_type, 6, function(){
+                        if (resp.data.use_static == 'yes') {
+                            location.href = location.protocol + "//" + resp.data.newip + location.pathname
+                        }
+                    });
+                }
+            });
+            return false;
+        });
+    })
+</script>
+{{template "common/footer"}}
+{{ end }}

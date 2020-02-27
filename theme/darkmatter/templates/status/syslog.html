@@ -1,0 +1,14 @@
+{{ define "status/syslog" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin","status","syslog"];
+</script>
+
+<h2 name="content">系统日志</h2>
+<div id="content_syslog">
+<textarea data-autoresize style="font-size: 12px;box-sizing: border-box;resize: none;" readonly="readonly" wrap="off" rows="488" id="syslog">{{ .syslog }}</textarea>
+</div>
+
+{{template "common/footer"}}
+{{ end }}

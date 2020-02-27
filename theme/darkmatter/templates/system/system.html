@@ -1,0 +1,234 @@
+{{ define "system/system" }}
+{{template "common/header" }}
+
+<!-- jquery.modal -->
+<link rel="stylesheet" href="/static/js/jquery-modal/jquery.modal.min.css" />
+<script src="/static/js/jquery-modal/jquery.modal.min.js"></script>
+<script>
+    var luciLocation = ["admin","system","system"];
+</script>
+
+<form id="hacklog-form" method="post" name="cbi" action="/admin/system/system" enctype="multipart/form-data">
+    <div>
+        <input type="hidden" name="token" value="270ecd947ed9c903589480de00ff97c4"/>
+        <input type="hidden" name="cbi.submit" value="1"/>
+        <input type="submit" value="Save" class="hidden"/>
+    </div>
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">系统</h2>
+        <div class="cbi-map-descr">在这里，您可以配置系统
+        </div>
+        <fieldset class="cbi-section" id="cbi-system-system">
+            <legend>系统</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab"><a href="/admin/system/system">常规</a></li>
+                <li id="tab.system.cfg02e48a.network" class="cbi-tab-disabled"><a href="/admin/system/network">网络</a></li>
+            </ul>
+
+
+            <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+                <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+                    <div class="cbi-value" id="cbi-system-cfg02e48a-hostname">
+                        <label class="cbi-value-title" for="cbid.system.cfg02e48a.hostname">主机名</label>
+                        <div class="cbi-value-field">
+                            <input name="hostname" type="text" class="cbi-input-text" value="{{ .Hostname }}"/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="Timezone">时区</label>
+                        <div class="cbi-value-field">
+                            <input name="Timezone" readonly disabled type="text" class="cbi-input-text" value="Asia/Shanghai"/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="time">NTSC标准时间</label>
+                        <div class="cbi-value-field">
+                            <input id="shijian_server" readonly disabled type="text" class="cbi-input-text" value="loading ..."/>
+                            <a target="_blank" href="https://www.baidu.com/s?wd=%E5%9B%BD%E5%AE%B6%E6%8E%88%E6%97%B6%E4%B8%AD%E5%BF%83" title="国家授时中心标准时间">国家授时中心标准时间(NTSC)</a>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="time">系统时间</label>
+                        <div class="cbi-value-field">
+                            <input id="localtime" readonly disabled type="text" class="cbi-input-text" value="{{ .Localtime }}"/>
+                            <button  id="ntp-sync" data-action="makestep" type="button" class="label">立即同步时间</button>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title" for="time">本地时间(浏览器)</label>
+                        <div class="cbi-value-field">
+                            <input id="shijian_local" readonly disabled type="text" class="cbi-input-text" value="loading ..."/>
+                        </div>
+                    </div>
+
+                    <div class="cbi-value">
+                        <label class="cbi-value-title">NTP状态</label>
+                        <div class="cbi-value-field">
+                            <span><img id="ntp-status-img" src="/static/img/loader.svg" alt="ntp status" style="width: 30px;vertical-align: bottom;margin:0 10px"></span>
+                            <button  data-action="tracking" data-modal="#ntp-status-div" type="button" class="ntp-status label success">追踪</button>
+                            <button  data-action="sources" data-modal="#ntp-status-div" type="button" class="ntp-status label success">来源</button>
+                            <button  data-action="sourcestats" data-modal="#ntp-status-div" type="button" class="ntp-status label success">状态</button>
+                        </div>
+                    </div>
+
+                <div class="cbi-value cbi-value-last" id="cbi-system-ntp-server" data-index="3">
+                    <label class="cbi-value-title" for="cbid.system.ntp.server">NTP服务器列表</label>
+                    <div class="cbi-value-field">
+{{range $index, $ntpServer := $.NtpServers }}
+                        <div>
+                            <input class="cbi-input-text" value="{{ $ntpServer }}"  type="text" name="ntp.server[]" />
+                        </div>
+{{end}}
+                    </div>
+                </div>
+                </div>
+            </fieldset>
+
+            <br/>
+        </fieldset>
+
+
+        <br/>
+    </div>
+    <div class="cbi-page-actions">
+        <input class="cbi-button cbi-button-save" type="submit" value="保存"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="重置"/>
+    </div>
+</form>
+
+<script>
+    let bjTimeSync = function() {
+        (function() {
+            var b = undefined;
+            var c = "{0}\u5e74{1}\u6708{2}\u65e5 {3}:{4}:{5}";
+            var g = 0;
+            var d = 8;
+
+            function f(i, h) {
+                return i.replace(/{(\d)}/g, function(j, k) {
+                    return h[k]
+                })
+            }
+
+            function e(h) {
+                return h < 10 ? "0" + h : h
+            }
+            window.baidu_time = function(i) {
+                var h = i.time;
+                b = h;
+                if (g != 0) {
+                    clearInterval(g);
+                    g = 0
+                }
+                g = setInterval(function() {
+                    h += 1000;
+                    a(h)
+                }, 1000)
+            };
+
+            function a(k) {
+                var h = ((-1 * (new Date()).getTimezoneOffset()) - (d * 60)) * 60000;
+                var i = new Date(k - h);
+                document.querySelector("#shijian_server").value = f(c, [e(i.getFullYear()), e(i.getMonth() + 1), e(i.getDate()), e(i.getHours()), e(i.getMinutes()), e(i.getSeconds())]);
+                var j = new Date();
+                document.querySelector("#shijian_local").value = f(c, [e(j.getFullYear()), e(j.getMonth() + 1), e(j.getDate()), e(j.getHours()), e(j.getMinutes()), e(j.getSeconds())])
+            }
+        })();
+
+        function init() {
+            var a = document.createElement("SCRIPT");
+            a.src = "https://biaozhunshijian.51240.com/web_system/51240_com_www/system/file/biaozhunshijian/time/?v=" + new Date().getTime();
+            document.getElementsByTagName("HEAD")[0].appendChild(a);
+            setTimeout(function() {
+                init()
+            }, 1000 * 60 * 60)
+        }
+        init();
+    };
+    jQuery(function($) {
+        bjTimeSync();
+
+        let nasTimeUpdate = function () {
+            setTimeout(function () {
+                $.get("/admin/system/system/localtime", function(resp) {
+                    $('#localtime').val(resp.data);
+                    nasTimeUpdate();
+                });
+
+            }, 1000);
+        };
+        nasTimeUpdate();
+
+        let nasNtpSyncStatus = function () {
+            setTimeout(function () {
+                $.get("/admin/system/system/ntp-status", function(resp) {
+                    let img = resp.data == "Normal" ? "ok" : "warning";
+                    $('#ntp-status-img').attr("src", "/static/img/" + img + ".png");
+                });
+                nasNtpSyncStatus();
+            }, 2000);
+        };
+        nasNtpSyncStatus();
+
+        $('#hacklog-form').submit(function() {
+            $(this).ajaxSubmit({success:function(resp) {
+                    console.log(resp);
+                    msg_type = resp.error !== 0 ? 'error' : 'success';
+                    alertify.notify(resp.message, msg_type, 6, function(){});
+                }
+            });
+            return false;
+        });
+
+        //ntp
+        $('.ntp-status').on('click', function() {
+            let action = $(this).data('action');
+            let modal_div = $(this).data('modal');
+            $.post("/admin/system/system/ntp", {"action": action}, function (resp) {
+                console.log(resp);
+                if (resp.error == 0) {
+                    $('#ntp-status-info').html('<pre style="overflow-x: scroll;">'+ resp.data + '</pre>');
+                    $(modal_div).modal();
+                } else {
+                    alertify.notify(resp.message, 'error', 3, function(){});
+                }
+            });
+            return false;
+        });
+
+        //sync
+        $('#ntp-sync').click(function () {
+            let action = $(this).data('action');
+            $.post("/admin/system/system/ntp", {"action": action}, function (resp) {
+                console.log(resp);
+                if (resp.error == 0) {
+                    $('#localtime').val(resp.data);
+                    alertify.notify('同步成功。', 'success', 2, function(){});
+                } else {
+                    alertify.notify(resp.message, 'error', 3, function(){});
+                }
+            });
+            return false;
+        });
+    })
+</script>
+
+
+<div id="ntp-status-div" class="modal" style="max-width:650px;">
+    <div id="ntp-status-info" style="font-size: .8em;">
+        载入中...
+    </div>
+    <div style="float: right;margin-top: 10px;">
+        <a href="#" rel="modal:close"><span class="label success">Close</span></a>
+    </div>
+</div>
+
+{{template "common/footer"}}
+{{ end }}

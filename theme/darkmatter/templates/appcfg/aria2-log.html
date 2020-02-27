@@ -1,0 +1,39 @@
+{{ define "appcfg/aria2-log" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin","appcfg","aria2"];
+</script>
+
+<div class="cbi-map" id="cbi-system">
+    <h2 name="content">Aria2配置</h2>
+    <div class="cbi-map-descr">Aria2运行日志
+    </div>
+    <fieldset class="cbi-section" id="cbi-system-system">
+        <legend>Aria2日志</legend>
+
+        <ul class="cbi-tabmenu">
+            <li id="tab.system.cfg02e48a.general" class="cbi-tab-disabled">
+                <a href="/appcfg/aria2">常规设置</a>
+            </li>
+            <li id="tab.system.cfg02e48a.extra" class="cbi-tab-disabled">
+                <a href="/appcfg/aria2-extra">高级设置</a>
+            </li>
+            <li id="tab.system.cfg02e48a.log" class="cbi-tab">
+                <a href="javascript:void(0);">日志</a>
+            </li>
+        </ul>
+
+
+        <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+        <div id="content_syslog">
+        <textarea data-autoresize style="font-size: 12px;box-sizing: border-box;resize: none;" readonly="readonly" wrap="off" id="syslog">{{ .Log }}</textarea>
+        </div>
+
+        </fieldset>
+    </fieldset>
+</div>
+
+{{template "common/footer"}}
+{{ end }}

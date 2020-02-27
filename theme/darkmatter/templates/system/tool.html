@@ -1,0 +1,190 @@
+{{ define "system/tool" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin", "system", "tool"];
+</script>
+
+<style>
+    #tests {
+		width: 400px;
+        margin: 10px 0;
+        position: relative;
+        padding: 10px;
+	}
+    #tests h1 > strong {
+        display: block;
+        margin-top: .1em;
+        font-size: 500%;
+        line-height: .7;
+    }
+    #tests table tr > td {
+        text-align: center;
+    }
+    #score-div {
+        display: none;
+        margin-top: 20px;
+    }
+    .score-high {
+        color:#708a0f;
+    }
+    .score-mid {
+        color:#f89406;
+    }
+    .score-low {
+        color:#da4f49;
+    }
+    #secureloader {
+        position: absolute; left: 100px; top: 120px; text-align: center; display: none;
+    }
+    #secureloader img {
+        width: 150px;
+    }
+</style>
+
+<h2>Tool工具</h2>
+<div style="color: #d8d3c5;line-height:30px;">
+    <p style="display: block;padding: 10px;border-bottom: 1px solid #0f0e0a;">
+        <button class="normal cbi-button danger-action" data-title="重启"
+                data-going="the system is rebooting now , please wait 80 ~ 120 seconds ..."
+                data-action="/admin/system/reboot">重启</button>
+
+        <button class="normal cbi-button danger-action" data-title="关机"
+                data-going="the system is shutting down ..."
+                data-action="/admin/system/poweroff">关机</button>
+
+    </p>
+
+    <div id="tests">
+
+        <a class="label success" target="_blank" rel="noreferrer" href="https://www.yougetsignal.com/tools/open-ports/">端口测试</a>
+
+        <button id="troubleshooting" class="normal cbi-button" data-title="Troubleshooting"
+                data-action="/admin/system/troubleshoot">系统体检</button>
+
+    <div id="secureloader">
+        <img src="/static/img/gears.svg"><br>
+        <p>
+            <span id="secureLoaderStep">6</span> / <span id="secureLoaderTotal">6</span>
+        </p>
+    </div>
+
+     <div id="score-div">
+    <h1>系统安全性评分 <strong id="total-score"><span id="Score">0</span>%</strong></h1>
+    <table class="score_table">
+        <tbody>
+        <tr>
+            <th>项目</th>
+            <th>结果</th>
+            <th></th>
+        </tr>
+        <tr>
+            <td>Root密码安全性</td>
+            <td><span class="label" id="RootPwdSecure">-</span></td>
+            <td>
+                <i class="fa fa-thumbs-up color-green"></i>
+            </td>
+        </tr>
+        <tr>
+            <td>qBittorrent密码安全性</td>
+            <td><span class="label" id="QbPwdSecure">-</span></td>
+            <td>
+                <i class="fa fa-thumbs-up color-green"></i>
+            </td>
+        </tr>
+        <tr>
+            <td>Transmission密码安全性</td>
+            <td><span class="label" id="TrPwdChanged">-</span></td>
+            <td>
+                <i class="fa fa-thumbs-up color-green"></i>
+            </td>
+        </tr>
+        <tr>
+            <td>Aria2密码安全性</td>
+            <td><span class="label" id="Aria2PwdChanged">-</span></td>
+            <td>
+                <i class="fa fa-thumbs-up color-green"></i>
+            </td>
+        </tr>
+        <tr>
+            <td>qBittorrent已配置</td>
+            <td><span class="label" id="QbCfgExists">-</span></td>
+            <td>
+                <i class="fa fa-thumbs-up color-green"></i>
+            </td>
+        </tr>
+        <tr>
+            <td>Transmission已配置</td>
+            <td><span class="label" id="TrCfgExists">-</span></td>
+            <td>
+                <i class="fa fa-thumbs-up color-green"></i>
+            </td>
+        </tr>
+        </tbody></table>
+        </div>
+    </div>
+
+</div>
+<script>
+    jQuery(function($) {
+        jQuery('.danger-action').click(function () {
+            let that = this;
+            let title = $(that).attr("data-title");
+            let tips_going = $(that).attr("data-going");
+            alertify.confirm(title + " 确认", "您真的想 " + title + " 吗?",
+                    function () {
+                        let rebootUrl = $(that).attr("data-action");
+                        $.ajax(rebootUrl, {
+                            method: "POST",
+                            success: function () {
+                                $(".main > .loading").fadeIn("fast");
+                                setTimeout('checkSysRestartStatus()', 1000 * 30);
+                                alertify.notify(tips_going,
+                                        'success', 100, function () {
+                                            location.reload();
+                                        });
+                            },
+                            error: checkSysRestartStatus,
+                        });
+                    }, function () {
+                    });
+            //prevent default action
+            return false;
+        });
+        
+        $('#troubleshooting').click(function () {
+            let that = this;
+            $(that).attr("disabled", true);
+            $('#score-div').hide();
+            $('#secureloader').fadeIn();
+            let url = $(this).attr("data-action");
+            $.get(url, function (resp) {
+                console.log(resp);
+                for (let item in resp.data) {
+                    if( resp.data.hasOwnProperty(item) ) {
+                        let val = resp.data[item];
+                        $('#'+item).text(val);
+                        if (val == "no") {
+                            $('#'+item).removeClass("success").addClass("error");
+                        } else {
+                            $('#'+item).removeClass("error").addClass("success");
+                        }
+                    }
+                }
+                if (resp.data.Score >= 80) {
+                    $('#total-score').addClass("score-high");
+                } else if (resp.data.Score >= 60) {
+                    $('#total-score').addClass("score-mid");
+                } else {
+                    $('#total-score').addClass("score-low");
+                }
+                $('#secureloader').fadeOut(1500, function () {
+                    $('#score-div').fadeIn();
+                    $(that).attr("disabled", false);
+                });
+            });
+        });
+    });
+</script>
+{{template "common/footer"}}
+{{ end }}

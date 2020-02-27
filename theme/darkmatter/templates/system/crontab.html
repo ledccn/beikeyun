@@ -1,0 +1,69 @@
+{{ define "system/crontab" }}
+{{template "common/header" }}
+<script>
+    var luciLocation = ["admin", "system", "crontab"];
+</script>
+<style>
+    .cbi-map-descr > a {
+        display: inline-block;
+        margin: 5px;
+	}
+</style>
+<form id="hacklog-form" method="post" enctype="multipart/form-data" action="/admin/system/crontab">
+	<div class="cbi-map" id="cbi-crontab">
+		<h2 name="content">任务计划</h2>
+		<div class="cbi-map-descr">
+			系统crontab任务计划程序可让您计划并在预定的时间运行服务或脚本。<br/>
+			注意：如果crontab文件在编辑之前为空，则需要手动重新启动cron服务。<br/>
+			<pre>*	(星号)代表任何时刻都接受
+,	(逗号)代表分割时段的意思
+-	(减号)代表一段时间范围内
+/	(斜线)代表指定时间间隔的运行频率</pre>
+<pre>参考: https://www.cnblogs.com/liwei0526vip/p/4873104.html
+https://www.cnblogs.com/intval/p/5763929.html
+┌───────────── 分钟 (0 - 59)
+│ ┌───────────── 小时 (0 - 23)
+│ │ ┌───────────── 日期 (1 - 31)
+│ │ │ ┌───────────── 月份 (1 - 12)
+│ │ │ │ ┌───────────── 周 (0 - 6) (星期天到星期六;某些系统7也是星期天)
+│ │ │ │ │
+* * * * * 任务的完整命令</pre>
+			参考工具:
+            <a class="label" target="_blank" href="https://crontab.guru/">https://crontab.guru/</a>
+            <a class="label" target="_blank" href="http://corntab.com/">http://corntab.com/</a>
+		</div>
+		<fieldset class="cbi-section">	
+	<div class="cbi-section-node">
+		<div id="cbi-crontab-0x9e2740">
+			<div class="cbi-value cbi-value-last" id="cbi-crontab-1-crons" data-index="1" data-depends="[]">
+				<textarea autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="cbi-input-textarea"
+						  style="width: 100%; font-size: 12px;"
+						  name="crontab" id="crontab" rows="26">{{ .crontab }}</textarea>
+			</div>
+		</div>
+	</div>
+	<br />
+</fieldset>
+		<br />
+	</div>
+	<div class="cbi-page-actions">
+	<input class="cbi-button cbi-button-save" type="submit" value="保存" />
+	<input class="cbi-button cbi-button-reset" type="reset" value="重置" />
+	</div>
+</form>
+
+<script>
+    jQuery(function($) {
+        $('#hacklog-form').submit(function() {
+            $(this).ajaxSubmit({success:function(resp) {
+                    console.log(resp);
+                    msg_type = resp.error !== 0 ? 'error' : 'success';
+                    alertify.notify(resp.message, msg_type, 6, function(){});
+                }
+            });
+            return false;
+        });
+    })
+</script>
+{{template "common/footer"}}
+{{ end }}

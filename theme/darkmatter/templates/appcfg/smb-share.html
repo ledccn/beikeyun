@@ -1,0 +1,455 @@
+{{ define "appcfg/smb-share" }}
+{{template "common/header" }}
+
+<!-- jquery.dataTables style -->
+<link rel="stylesheet" href="/static/js/datatables/datatables.css" />
+<script src="/static/js/datatables/datatables.min.js"></script>
+
+<link rel="stylesheet" href="/static/js/select2/css/select2.min.css" />
+<script src="/static/js/select2/js/select2.min.js"></script>
+
+<script>
+    var luciLocation = ["admin","appcfg","smb"];
+</script>
+
+<!-- typeahead style -->
+<link rel="stylesheet" href="/static/css/typeahead.css" />
+<script src="/static/js/typeahead/typeahead.jquery.min.js"></script>
+
+<!-- jquery.modal -->
+<link rel="stylesheet" href="/static/js/jquery-modal/jquery.modal.min.css" />
+<script src="/static/js/jquery-modal/jquery.modal.min.js"></script>
+
+<style>
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border: 1px solid #4f4e4a;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+        background-color: #1f1e1a;
+    }
+
+    .select2-dropdown {
+        background-color: #2f2f2a;
+        border: 1px solid #4f4e4a;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #6f6f10;
+        border: 1px solid #b3b374;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #8e8e27;
+        color: white;
+    }
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background-color: #4e4e3f;
+    }
+
+    .literal {
+        color: #bfab11;
+        font-size: 14px;
+    }
+</style>
+
+<form id="smb-share-form" method="post" name="cbi" action="#" enctype="multipart/form-data">
+    <div class="cbi-map" id="cbi-system">
+        <h2 name="content">Samba配置</h2>
+        <div class="cbi-map-descr">
+            在这里，您可以配置Samba共享目录。
+            <button type="button" data-modal="#smb-share-level-access-options" class="label success">Samba Share-level access options</button>
+
+            <p style="line-height: 20px;">
+                更多参考文档：<br>
+                <a target="_blank" href="https://www.samba.org/samba/docs/using_samba/ch09.html#samba2-CHP-9-SECT-2.2">https://www.samba.org/samba/docs/using_samba/ch09.html#samba2-CHP-9-SECT-2.2</a>
+                <br>
+                <a target="_blank" href="http://cn.linux.vbird.org/linux_server/0370samba.php">http://cn.linux.vbird.org/linux_server/0370samba.php</a>
+            </p>
+        </div>
+        <fieldset class="cbi-section" id="cbi-system-system" style="overflow:visible;">
+            <legend>Samba</legend>
+
+            <ul class="cbi-tabmenu">
+                <li id="tab.system.cfg02e48a.general" class="cbi-tab-disabled">
+                    <a href="/appcfg/smb">全局设置</a>
+                </li>
+                <li id="tab.system.cfg02e48a.users" class="cbi-tab">
+                    <a href="/appcfg/smb-share">共享目录</a>
+                </li>
+                <li id="tab.system.cfg02e48a.users" class="cbi-tab-disabled">
+                    <a href="/appcfg/smb-users">用户</a>
+                </li>
+                <li id="tab.system.cfg02e48a.log" class="cbi-tab-disabled">
+                    <a href="/appcfg/smb-log">日志</a>
+                </li>
+            </ul>
+            <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a" style="overflow:visible;">
+
+                <div class="cbi-tabcontainer" id="container.system.cfg02e48a.general">
+
+                    <table id="proxies-table" class="display cell-border" style="width:100%;table-layout: auto;">
+                        <thead>
+                        <!-- <tr>
+                            <th>Name</th>
+                            <th>Comment</th>
+                            <th>Path</th>
+                            <th>Writeable</th>
+                            <th>Valid Users</th>
+                            <th>Invalid Users</th>
+                            <th>Read List</th>
+                            <th>Write List</th>
+                            <th>Action</th>
+                        </tr> -->
+                        <tr id="edit-row" style="width: 100%;">
+                            <td style="width: 10%;"><input type="text" name="name" id="name" style="width: 100%;" /></td>
+                            <td style="width: 10%;"><input type="text" name="comment" id="comment"  style="width: 100%;" /></td>
+                            <td style=""><input class="my-typeahead" type="text" name="path" id="path" style="width: 100%;"/></td>
+                            <td style="width: 10%;">
+                                <select name="writeable" id="writeable" style="width: 100%;">
+                                    <option value="no">禁止</option>
+                                    <option value="yes">允许</option>
+                                </select>
+                            </td>
+                            <td style="width: 10%;overflow-x: scroll;"><select multiple class="select2-ajax" name="valid_users" id="valid_users" style="width: 100%;"></select></td>
+                            <td style="width: 5%;overflow-x: scroll;"><select multiple class="select2-ajax" name="invalid_users" id="invalid_users" style="width: 100%;"></select></td>
+
+                            <td style="width: 10%;overflow-x: scroll;"><select multiple class="select2-ajax" name="read_list" id="read_list" style="width: 100%;"></select></td>
+                            <td style="width: 10%;overflow-x: scroll;"><select multiple class="select2-ajax" name="write_list" id="write_list" style="width: 100%;"></select></td>
+                            <td style="width: 5%;"><button class='cbi-button cbi-input-reload btn-add' style="width: 100%;">添加</button></td>
+                        </tr>
+                        <tr>
+                            <th>共享名</th>
+                            <th>注释</th>
+                            <th>共享目录的绝对路径</th>
+                            <th>写权限</th>
+                            <th>允许的用户</th>
+                            <th>禁止的用户</th>
+                            <th>可读</th>
+                            <th>可写</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>共享名</th>
+                            <th>注释</th>
+                            <th>共享目录的绝对路径</th>
+                            <th>写权限</th>
+                            <th>允许的用户</th>
+                            <th>禁止的用户</th>
+                            <th>可读</th>
+                            <th>可写</th>
+                            <th>操作</th>
+                        </tr>
+                        </tfoot>
+
+                    </table>
+
+                </div>
+
+            <br/>
+
+        </fieldset>
+        <br/>
+    </fieldset>
+    <div class="cbi-page-actions">
+        <!--
+        <input class="cbi-button cbi-button-save" type="submit" value="Save"/>
+        <input class="cbi-button cbi-button-reset" type="reset" value="Reset"/>
+        -->
+    </div>
+</form>
+
+<script>
+    $(document).ready(function() {
+        var table = $('#proxies-table').DataTable( {
+            "paging":   false,
+            "ajax": "/appcfg/smb-shared-dir",
+            "columns": [
+                { "data": "name" },
+                { "data": "comment" },
+                { "data": "path" },
+                { "data": "writeable" },
+                { "data": "valid_users" },
+                { "data": "invalid_users" },
+                { "data": "read_list" },
+                { "data": "write_list" },
+                {
+                    "targets": -1,
+                    "data": null,
+                    "defaultContent": "<button class='cbi-button cbi-input-reload btn-edit'>编辑</button> <button class='cbi-button cbi-input-remove btn-remove'>删除</button>"
+                }
+            ]
+        } );
+
+/*        $('#proxies-table tbody').on( 'click', 'tr', function () {
+            if ( $(this).hasClass('selected') ) {
+                $(this).removeClass('selected');
+            }
+            else {
+                table.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+            }
+        } );*/
+
+        $('#proxies-table tbody').on( 'click', 'button.btn-remove', function () {
+            let this_row = table.row( $(this).parents('tr') );
+            let data = this_row.data();
+            console.log( data.name );
+            alertify.confirm("删除确认", "是否删除选择的共享目录 ?", function(){
+                $.post("/appcfg/smb-shared-remove", {"name": data.name}, function (resp) {
+                    console.log(resp);
+                    if (resp.status == 0) {
+                        alertify.notify('共享目录 ' + data.name + ' 删除成功。', 'success', 1, function(){  this_row.remove().draw( false ); });
+                    }
+                });
+            }, function () {});
+            return false;
+        }); //end remove
+        $('#proxies-table thead').on( 'click', 'button.btn-add', function () {
+            // let data = $('#proxies-form').serialize();
+            let data = {
+                "name": $('#name').val(),
+                "comment": $('#comment').val(),
+                "path": $('#path').val(),
+                "writeable": $('#writeable').val(),
+                "valid_users": $('#valid_users').val(),
+                "invalid_users": $('#invalid_users').val(),
+                "read_list": $('#read_list').val(),
+                "write_list": $('#write_list').val(),
+            };
+            console.log( data );
+            $.post("/appcfg/smb-shared-save", data, function (resp) {
+                console.log(resp);
+                if (resp.status == 0) {
+                    alertify.notify('共享目录 ' + data.name + ' 添加/保存 成功。', 'success', 1, function(){
+                        // table.row('.selected').remove().draw( false );
+                        let row_data = {
+                            "name": data.name,
+                            "comment": data.comment,
+                            "path": data.path,
+                            "writeable": data.writeable,
+                            "valid_users": data.valid_users.join(" "),
+                            "invalid_users": data.invalid_users.join(" "),
+                            "read_list": data.read_list.join(" "),
+                            "write_list": data.write_list.join(" ")
+                        };
+
+                        //if is update
+                        if ($('.selected').length > 0) {
+                            table.row('.selected').data(row_data);
+                            $('.selected').removeClass('selected');
+                        } else {
+                            table.row.add(row_data).draw( false );
+                        }
+                        $('#proxies-form').trigger("reset");
+                        $('.btn-add').text("Add");
+                    });
+                } else {
+                    alertify.notify('tunnel ' + data.name + ' failed to add.' + resp.message, 'error', 3, function(){});
+                }
+            });
+            return false;
+        }); //end add
+
+        $('#proxies-table tbody').on( 'click', 'button.btn-edit', function () {
+            //remove prev added 'selected' class first
+            $('.selected').removeClass('selected');
+            $(this).parents('tr').addClass('selected');
+            let this_row = table.row( $(this).parents('tr') );
+            let data = this_row.data();
+            console.log( data );
+            $('#name').val(data.name);
+            $('#comment').val(data.comment);
+            $('#path').val(data.path);
+            $('#writeable').val(data.writeable);
+
+            $('#valid_users').val(null).trigger('change');
+            $('#valid_users').html('');
+            data.valid_users.split(' ').forEach(function(element) {
+                if (element == "" || element == " ") {
+                    return;
+                }
+                if ($('#valid_users option[value="' + element + '"]').length > 0 ) {
+                    return
+                }
+                $('#valid_users').append(new Option(element, element, false, true)).trigger('change');
+            });
+
+            $('#invalid_users').val(null).trigger('change');
+            $('#invalid_users').html('');
+            data.invalid_users.split(' ').forEach(function(element) {
+                if (element == "" || element == " ") {
+                    return;
+                }
+                if ($('#invalid_users option[value="' + element + '"]').length > 0 ) {
+                    return
+                }
+                $('#invalid_users').append(new Option(element, element, false, true)).trigger('change');
+            });
+
+            $('#read_list').val(null).trigger('change');
+            $('#read_list').html('');
+            data.read_list.split(' ').forEach(function(element) {
+                if (element == "" || element == " ") {
+                    return;
+                }
+                if ($('#read_list option[value="' + element + '"]').length > 0 ) {
+                    return
+                }
+                $('#read_list').append(new Option(element, element, false, true)).trigger('change');
+            });
+
+            $('#write_list').val(null).trigger('change');
+            $('#write_list').html('');
+            data.write_list.split(' ').forEach(function(element) {
+                if (element == "" || element == " ") {
+                    return;
+                }
+                if ($('#write_list option[value="' + element + '"]').length > 0 ) {
+                    return
+                }
+                $('#write_list').append(new Option(element, element, false, true)).trigger('change');
+            });
+            $('.btn-add').text("Save");
+            // this_row.remove().draw( false );
+            return false;
+        }); //end edit
+
+        //typeahead
+        $('.my-typeahead').typeahead({
+                    minLength: 1,
+                    highlight: true,
+                    hint: true,
+                    offset: true
+                },
+                {
+                    name: 'path',
+                    display: 'value',
+                    async:true,
+                    limit:20,
+                    source: function (query, process, asyncResults) {
+                        return $.get('/api/system/browse', { current: query }, function (data) {
+                            var matches = [];
+                            $.each(data.list, function(i, str) {
+                                matches.push({ value: str });
+                            });
+                            // process(matches);
+                            asyncResults(matches);
+                            console.log(matches);
+                        },'json');
+                    },
+        });
+
+        //select2
+        $('.select2-ajax').select2({
+            width: 'resolve',
+            ajax: {
+                url: '/appcfg/smb-users-ajax',
+                data: function (params) {
+                    var query = {
+                        search: params.term,
+                    }
+                    // Query parameters will be ?search=[term]&type=public
+                    return query;
+                },
+                processResults: function (data) {
+                    var matches = [];
+                    $.each(data.data, function(i, obj) {
+                        matches.push({ id:obj.Name, text: obj.Name });
+                    });
+                    // Tranforms the top-level key of the response object from 'items' to 'results'
+                    return {
+                        results: matches
+                    };
+                }
+            }
+        });
+
+        //modal
+        $('button[data-modal]').on('click', function() {
+            $($(this).data('modal')).modal();
+            return false;
+        });
+    } );
+</script>
+
+<div id="smb-share-level-access-options" class="modal" style="max-width:900px;">
+    <div style="font-size: .8em;color: antiquewhite;">
+        <h3>Samba Share-level access options</h3>
+        <table>
+            <tbody>
+            <tr>
+                <th>Option</th>
+                <th>Parameters</th>
+                <th>Function</th>
+                <th>Default</th>
+                <th>Scope</th>
+            </tr>
+
+
+            <tr>
+                <td><span class="literal">admin users</span></td>
+                <td>string (list of usernames)</td>
+                <td>Users who can perform operations as root</td>
+                <td>None</td>
+                <td>Share</td>
+            </tr>
+            <tr>
+                <td><span class="literal">valid users</span></td>
+                <td>string (list of usernames)</td>
+                <td>Users who can connect to a share</td>
+                <td>None</td>
+                <td>Share</td>
+            </tr>
+            <tr>
+                <td><span class="literal">invalid users</span></td>
+                <td>string (list of usernames)</td>
+                <td>Users who will be denied access to a share</td>
+                <td>None</td>
+                <td>Share</td>
+            </tr>
+            <tr>
+                <td><span class="literal">read list</span></td>
+                <td>string (list of usernames)</td>
+                <td>Users who have read-only access to a writable share</td>
+                <td>None</td>
+                <td>Share</td>
+            </tr>
+            <tr>
+                <td><span class="literal">write list</span></td>
+                <td>string (list of usernames)</td>
+                <td>Users who have read/write access to a read-only share</td>
+                <td>None</td>
+                <td>Share</td>
+            </tr>
+            <tr>
+                <td><span class="literal">max connections</span></td>
+                <td>numeric</td>
+                <td>Maximum number of connections for a share at a given time</td>
+                <td><span class="literal">0</span></td>
+                <td>Share</td>
+            </tr>
+            <tr>
+                <td><span class="literal">guest only</span> <span class="literal">(only guest)</span></td>
+                <td>Boolean</td>
+                <td>If <span class="literal">yes</span>, allows only guest access</td>
+                <td><span class="literal">no</span></td>
+                <td>Share</td>
+            </tr>
+            <tr>
+                <td><span class="literal">guest account</span></td>
+                <td>string (name of account)</td>
+                <td>Unix account that will be used for guest access</td>
+                <td><span class="literal">nobody</span></td>
+                <td>Share</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div style="float: right;margin-top: 10px;">
+        <a href="#" rel="modal:close"><span class="label success">Close</span></a>
+    </div>
+</div>
+
+{{template "common/footer"}}
+{{ end }}

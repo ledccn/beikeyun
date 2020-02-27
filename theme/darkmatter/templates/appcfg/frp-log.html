@@ -1,0 +1,39 @@
+{{ define "appcfg/frp-log" }}
+{{template "common/header" }}
+
+<script>
+    var luciLocation = ["admin","appcfg","frp"];
+</script>
+
+<div class="cbi-map" id="cbi-system">
+    <h2 name="content">FRP</h2>
+    <div class="cbi-map-descr">您可以查看FRPC运行日志
+    </div>
+    <fieldset class="cbi-section" id="cbi-system-system">
+        <legend>日志</legend>
+
+        <ul class="cbi-tabmenu">
+            <li id="tab.system.cfg02e48a.general" class="cbi-tab-disabled">
+                <a href="/appcfg/frp">常规设置</a>
+            </li>
+            <li id="tab.system.cfg02e48a.log" class="cbi-tab-disabled">
+                <a href="/appcfg/frp-proxies">代理设置</a>
+            </li>
+            <li id="tab.system.cfg02e48a.log" class="cbi-tab">
+                <a href="/appcfg/frp-log">运行日志</a>
+            </li>
+        </ul>
+
+
+        <fieldset class="cbi-section-node cbi-section-node-tabbed" id="cbi-system-cfg02e48a">
+
+        <div id="content_syslog">
+        <textarea data-autoresize style="font-size: 12px;box-sizing: border-box;resize: none;" readonly="readonly" wrap="off" id="syslog">{{ .Log }}</textarea>
+        </div>
+
+        </fieldset>
+    </fieldset>
+</div>
+
+{{template "common/footer"}}
+{{ end }}
