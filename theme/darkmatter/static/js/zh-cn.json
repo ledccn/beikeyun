@@ -38,40 +38,36 @@
     "IPv6 WAN Status": "IPv6 WAN 状态",
     "Active Connections": "活动连接",
     "Wireless": "无线",
-"setingNav":[
-    {
-        "id": "qb_web_link",
-        "value": 1
-    },
-    {
-        "id": "tr_web_link",
-        "value": 1
-    },
-    {
-        "id": "fm_web_link",
-        "value": 1
-    },
-    {
-        "id": "gbr_web_link",
-        "value": 0
-    },
-    {
-        "id": "jf_web_link",
-        "value": 0
-    },
-    {
-        "id": "sync_web_link",
-        "value": 0
-    }
-],
+    "setingNav":[
+        {
+            "id": "qb_web_link",
+            "value": 1
+        },
+        {
+            "id": "tr_web_link",
+            "value": 1
+        },
+        {
+            "id": "fm_web_link",
+            "value": 0
+        },
+        {
+            "id": "gbr_web_link",
+            "value": 0
+        },
+        {
+            "id": "jf_web_link",
+            "value": 0
+        },
+        {
+            "id": "sync_web_link",
+            "value": 0
+        }
+    ],
     "addNav": [
         {
             "name": "Docker",
             "url": "http://192.168.1.3:9000/"
-        },
-        {
-            "name": "BaiduPCS",
-            "url": "http://192.168.1.3:5299/"
         },
         {
             "name": "ROM",
