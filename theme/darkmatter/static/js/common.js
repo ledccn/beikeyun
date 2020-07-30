@@ -84,6 +84,9 @@ var statusCheck = function (api_url, target_ele, cb) {
     https://www.iyuu.cn/archives/10/
  */
 $(document).ready(function(){
+    console.log('JS动态翻译小钢炮+自定义导航');
+    console.log('作者：大卫');
+    console.log('网站：https://www.iyuu.cn');
     // 获取语言文件
     $.getJSON("/static/js/zh-cn.json", function (data){
         // 主菜单 选择器
@@ -143,11 +146,16 @@ $(document).ready(function(){
 				$("#"+item.id).remove();
             }
         });
-		// 添加导航
+        // 添加导航
 		addNav.forEach(function(item, index) {
-			console.log('添加导航' + item.name);
-			let val = '<a target="_blank" href="'+ item.url +'"><button class="label success"><span class="mobile-hide">'+ item.name +'</span></button></a>';
-			$(".pull-right").append(val);
+            console.log('添加导航' + item.name);
+            if (/^http(s)?\:\/\//.test(item.url)) {
+                let val = '<a target="_blank" href="'+ item.url +'"><button class="label success"><span class="mobile-hide">'+ item.name +'</span></button></a>';
+                $(".pull-right").append(val);
+            } else {
+                let val = '<a target="_blank" href="'+ item.protocol + window.location.host + item.url +'"><button class="label success"><span class="mobile-hide">'+ item.name +'</span></button></a>';
+                $(".pull-right").append(val);
+            }			
         });
     })
 });
