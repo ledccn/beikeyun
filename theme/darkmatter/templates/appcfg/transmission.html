@@ -65,7 +65,7 @@
                     </div>
 
                     <div class="cbi-value">
-                        <label class="cbi-value-title" for="incomplete-dir">未下完的保存路径</label>
+                        <label class="cbi-value-title" for="incomplete-dir">未完成临时目录</label>
                         <div class="cbi-value-field">
                             <input  id="incomplete-dir" name="incomplete-dir" type="text"
                                    class="cbi-input-text typeahead" value="{{index .trcfg "incomplete-dir"}}"/>
@@ -74,7 +74,7 @@
                     </div>
 
                     <div class="cbi-value">
-                        <label class="cbi-value-title" for="watch-dir-enabled">开启种子监视目录</label>
+                        <label class="cbi-value-title" for="watch-dir-enabled">使能种子监视目录</label>
                         <div class="cbi-value-field">
                             <select class="cbi-input-select"  id="watch-dir-enabled" name="watch-dir-enabled" size="1">
                             {{ $x := index .trcfg "watch-dir-enabled"}}
@@ -93,7 +93,7 @@
                     </div>
 
                     <div class="cbi-value">
-                        <label class="cbi-value-title" for="rpc-authentication-required">开启RPC远程访问验证</label>
+                        <label class="cbi-value-title" for="rpc-authentication-required">RPC远程访问验证</label>
                         <div class="cbi-value-field">
                             <select class="cbi-input-select"  id="rpc-authentication-required" name="rpc-authentication-required" size="1">
                             {{ $x := index .trcfg "rpc-authentication-required"}}

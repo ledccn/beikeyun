@@ -52,8 +52,8 @@
                         <div class="cbi-value-field">
                             <select class="cbi-input-select"  id="force-save" name="force-save" size="1">
                                 {{ $fs := .aria2cfg.ForceSave }}
-                                <option {{ EqOutput "false" $fs " selected " | attr }} value="false" >NO</option>
-                                <option {{ EqOutput "true" $fs " selected " | attr }} value="true" >YES</option>
+                                <option {{ EqOutput "false" $fs " selected " | attr }} value="false" >关闭</option>
+                                <option {{ EqOutput "true" $fs " selected " | attr }} value="true" >开启</option>
                             </select>
                             请参考 <a target="_blank" href="https://aria2.github.io/manual/en/html/aria2c.html#cmdoption-force-save">--force-save</a>
                         </div>

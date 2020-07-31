@@ -27,7 +27,7 @@
                 <div class="cbi-tabcontainer">
 
                     <div class="cbi-value">
-                        <label class="cbi-value-title" for="download-queue-enabled">启用下载队列</label>
+                        <label class="cbi-value-title" for="download-queue-enabled">下载队列</label>
                         <div class="cbi-value-field">
                             <select class="cbi-input-select"  id="download-queue-enabled" name="download-queue-enabled" size="1">
                             {{ $dqe := index .trcfg "download-queue-enabled"}}
@@ -46,7 +46,7 @@
                     </div>
 
                     <div class="cbi-value">
-                        <label class="cbi-value-title" for="seed-queue-enabled">启用上传队列</label>
+                        <label class="cbi-value-title" for="seed-queue-enabled">上传队列</label>
                         <div class="cbi-value-field">
                             <select class="cbi-input-select"  id="seed-queue-enabled" name="seed-queue-enabled" size="1">
                             {{ $sqe := index .trcfg "seed-queue-enabled"}}
@@ -65,7 +65,7 @@
                     </div>
 
                     <div class="cbi-value">
-                        <label class="cbi-value-title" for="cache-size-mb">缓存大小</label>
+                        <label class="cbi-value-title" for="cache-size-mb">磁盘缓存大小</label>
                         <div class="cbi-value-field">
                             <input id="cache-size-mb" name="cache-size-mb" type="text"
                                    class="cbi-input-text" value="{{index .trcfg "cache-size-mb"}}"/> MB 例:磁盘写入速度A、下载速度B。缓存大小=A×A/B
@@ -73,7 +73,7 @@
                     </div>
 
                     <div class="cbi-value">
-                        <label class="cbi-value-title" for="speed-limit-down-enabled">启用最大下载速度限制</label>
+                        <label class="cbi-value-title" for="speed-limit-down-enabled">最大下载速度限制</label>
                         <div class="cbi-value-field">
                             <select class="cbi-input-select"  id="speed-limit-down-enabled" name="speed-limit-down-enabled" size="1">
 							{{ $slde := index .trcfg "speed-limit-down-enabled"}}
@@ -92,7 +92,7 @@
                     </div>
 
                     <div class="cbi-value">
-                        <label class="cbi-value-title" for="speed-limit-up-enabled">启用最大上传速度限制</label>
+                        <label class="cbi-value-title" for="speed-limit-up-enabled">最大上传速度限制</label>
                         <div class="cbi-value-field">
                             <select class="cbi-input-select"  id="speed-limit-up-enabled" name="speed-limit-up-enabled" size="1">
 							{{ $slue := index .trcfg "speed-limit-up-enabled"}}
@@ -133,7 +133,7 @@
                 <div class="cbi-tabcontainer">
 
                     <div class="cbi-value">
-                        <label class="cbi-value-title" for="rpc-host-whitelist-enabled">启用RPC主机白名单</label>
+                        <label class="cbi-value-title" for="rpc-host-whitelist-enabled">RPC主机白名单</label>
                         <div class="cbi-value-field">
                             <select class="cbi-input-select"  id="rpc-host-whitelist-enabled" name="rpc-host-whitelist-enabled" size="1">
                                 {{ $x := index .trcfg "rpc-host-whitelist-enabled"}}
@@ -155,9 +155,8 @@
                         </div>
                     </div>
 
-
                     <div class="cbi-value">
-                    <label class="cbi-value-title" for="rpc-whitelist-enabled">启用RPC访问白名单</label>
+                    <label class="cbi-value-title" for="rpc-whitelist-enabled">RPC访问白名单</label>
                     <div class="cbi-value-field">
                         <select class="cbi-input-select"  id="rpc-whitelist-enabled" name="rpc-whitelist-enabled" size="1">
 						{{ $y := index .trcfg "rpc-whitelist-enabled"}}
@@ -176,7 +175,7 @@
                 </div>
 
                 <div class="cbi-value">
-                    <label class="cbi-value-title" for="blocklist-enabled">启用黑名单</label>
+                    <label class="cbi-value-title" for="blocklist-enabled">黑名单</label>
                     <div class="cbi-value-field">
                         <select class="cbi-input-select"  id="blocklist-enabled" name="blocklist-enabled" size="1">
 						{{ $z := index .trcfg "blocklist-enabled"}}
@@ -210,7 +209,7 @@
                 </div>
 
                 <div class="cbi-value">
-                    <label class="cbi-value-title" for="dht-enabled">启用分布式哈希表 DHT</label>
+                    <label class="cbi-value-title" for="dht-enabled">分布式哈希表 DHT</label>
                     <div class="cbi-value-field">
                         <select class="cbi-input-select"  id="dht-enabled" name="dht-enabled" size="1">
 						{{ $de := index .trcfg "dht-enabled"}}
@@ -221,7 +220,7 @@
                 </div>
 
                 <div class="cbi-value">
-                    <label class="cbi-value-title" for="lpd-enabled">启用本地用户发现 LPD</label>
+                    <label class="cbi-value-title" for="lpd-enabled">本地用户发现 LPD</label>
                     <div class="cbi-value-field">
                         <select class="cbi-input-select"  id="lpd-enabled" name="lpd-enabled" size="1">
 						{{ $le := index .trcfg "lpd-enabled"}}
@@ -232,7 +231,7 @@
                 </div>
 
                 <div class="cbi-value">
-                    <label class="cbi-value-title" for="pex-enabled">启用用户交换 PEX</label>
+                    <label class="cbi-value-title" for="pex-enabled">用户交换 PEX</label>
                     <div class="cbi-value-field">
                         <select class="cbi-input-select"  id="pex-enabled" name="pex-enabled" size="1">
 						{{ $pe := index .trcfg "pex-enabled"}}
@@ -243,7 +242,7 @@
                 </div>
 
                 <div class="cbi-value">
-                    <label class="cbi-value-title" for="port-forwarding-enabled">启用端口转发 uPnP</label>
+                    <label class="cbi-value-title" for="port-forwarding-enabled">端口转发 uPnP</label>
                     <div class="cbi-value-field">
                         <select class="cbi-input-select"  id="port-forwarding-enabled" name="port-forwarding-enabled" size="1">
 						{{ $pfe := index .trcfg "port-forwarding-enabled"}}
@@ -254,7 +253,7 @@
                 </div>
 
                 <div class="cbi-value">
-                    <label class="cbi-value-title" for="utp-enabled">启用UDP传输</label>
+                    <label class="cbi-value-title" for="utp-enabled">UDP传输</label>
                     <div class="cbi-value-field">
                         <select class="cbi-input-select"  id="utp-enabled" name="utp-enabled" size="1">
 						{{ $utpe := index .trcfg "utp-enabled"}}
