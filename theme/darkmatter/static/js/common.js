@@ -87,6 +87,7 @@ $(document).ready(function(){
     console.log('JS动态翻译小钢炮+自定义导航');
     console.log('作者：大卫');
     console.log('网站：https://www.iyuu.cn');
+    console.log('项目仓库：https://github.com/ledccn/beikeyun');
     // 获取语言文件
     $.getJSON("/static/js/zh-cn.json", function (data){
         // 主菜单 选择器
